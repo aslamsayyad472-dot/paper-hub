@@ -694,4 +694,683 @@ class ProductCard extends StatelessWidget {
                   Text(
                     product.name,
                     style: const TextStyle(
-    
+                            fontSize: 17,
+                        fontWeight: FontWeight.w900,
+                      ),
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      '${product.size} • ${product.gsm}',
+                      style: const TextStyle(
+                        color: Colors.grey,
+                        fontSize: 12,
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    Text(
+                      '₹${product.price.toInt()}',
+                      style: const TextStyle(
+                        fontSize: 19,
+                        fontWeight: FontWeight.w900,
+                      ),
+                    ),
+                    const Text(
+                      'per ream',
+                      style: TextStyle(
+                        color: Colors.grey,
+                        fontSize: 10,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(width: 5),
+              quantity == 0
+                  ? SizedBox(
+                      width: 55,
+                      child: ElevatedButton(
+                        onPressed: onAdd,
+                        child: const Text(
+                          'ADD',
+                          style: TextStyle(
+                            fontSize: 11,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ),
+                    )
+                  : Column(
+                      children: [
+                        IconButton(
+                          onPressed: onAdd,
+                          icon: const Icon(
+                            Icons.add_circle,
+                            color: Color(0xFF155EEF),
+                          ),
+                        ),
+                        Text(
+                          '$quantity',
+                          style: const TextStyle(
+                            fontWeight: FontWeight.w900,
+                          ),
+                        ),
+                        IconButton(
+                          onPressed: onRemove,
+                          icon: const Icon(
+                            Icons.remove_circle_outline,
+                          ),
+                        ),
+                      ],
+                    ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+// ============================================================
+// PRODUCT DETAILS
+// ============================================================
+
+class ProductDetailsPage extends StatelessWidget {
+  final Product product;
+  final int quantity;
+  final VoidCallback onAdd;
+
+  const ProductDetailsPage({
+    super.key,
+    required this.product,
+    required this.quantity,
+    required this.onAdd,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: const Color(0xFFF6F8FC),
+      appBar: AppBar(
+        title: const Text(
+          'Product Details',
+          style: TextStyle(
+            fontWeight: FontWeight.w800,
+          ),
+        ),
+      ),
+      body: SingleChildScrollView(
+        child: Column(
+          children: [
+            Container(
+              width: double.infinity,
+              height: 290,
+              margin: const EdgeInsets.all(16),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(25),
+              ),
+              child: Image.asset(
+                product.image,
+                fit: BoxFit.contain,
+                errorBuilder: (context, error, stackTrace) {
+                  return const Icon(
+                    Icons.description_outlined,
+                    size: 100,
+                    color: Color(0xFF155EEF),
+                  );
+                },
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.fromLTRB(20, 0, 20, 30),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    product.brand,
+                    style: const TextStyle(
+                      color: Color(0xFF155EEF),
+                      fontWeight: FontWeight.w800,
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  Text(
+                    product.name,
+                    style: const TextStyle(
+                      fontSize: 27,
+                      fontWeight: FontWeight.w900,
+                    ),
+                  ),
+                  const SizedBox(height: 10),
+                  Text(
+                    '₹${product.price.toInt()} / ream',
+                    style: const TextStyle(
+                      fontSize: 25,
+                      fontWeight: FontWeight.w900,
+                    ),
+                  ),
+                  const SizedBox(height: 18),
+                  Row(
+                    children: [
+                      InfoBox(
+                        title: 'Size',
+                        value: product.size,
+                      ),
+                      const SizedBox(width: 10),
+                      InfoBox(
+                        title: 'GSM',
+                        value: product.gsm,
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 22),
+                  const Text(
+                    'Product Description',
+                    style: TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.w900,
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  Text(
+                    product.description,
+                    style: const TextStyle(
+                      color: Colors.grey,
+                      height: 1.5,
+                    ),
+                  ),
+                  const SizedBox(height: 25),
+                  SizedBox(
+                    width: double.infinity,
+                    child: ElevatedButton.icon(
+                      onPressed: onAdd,
+                      icon: const Icon(
+                        Icons.shopping_cart_outlined,
+                      ),
+                      label: Text(
+                        quantity > 0
+                            ? 'Add Another to Cart'
+                            : 'Add to Cart',
+                      ),
+                      style: ElevatedButton.styleFrom(
+                        padding: const EdgeInsets.symmetric(
+                          vertical: 17,
+                        ),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(16),
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+// ============================================================
+// INFO BOX
+// ============================================================
+
+class InfoBox extends StatelessWidget {
+  final String title;
+  final String value;
+
+  const InfoBox({
+    super.key,
+    required this.title,
+    required this.value,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Expanded(
+      child: Container(
+        padding: const EdgeInsets.all(15),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(15),
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              title,
+              style: const TextStyle(
+                color: Colors.grey,
+                fontSize: 12,
+              ),
+            ),
+            const SizedBox(height: 4),
+            Text(
+              value,
+              style: const TextStyle(
+                fontSize: 17,
+                fontWeight: FontWeight.w900,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+// ============================================================
+// CART PAGE
+// ============================================================
+
+class CartPage extends StatelessWidget {
+  final Map<String, int> cart;
+  final double total;
+  final Function(Product) onAdd;
+  final Function(Product) onRemove;
+  final VoidCallback onCheckout;
+
+  const CartPage({
+    super.key,
+    required this.cart,
+    required this.total,
+    required this.onAdd,
+    required this.onRemove,
+    required this.onCheckout,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final cartProducts = products
+        .where((product) => (cart[product.name] ?? 0) > 0)
+        .toList();
+
+    if (cartProducts.isEmpty) {
+      return const SafeArea(
+        child: Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(
+                Icons.shopping_cart_outlined,
+                size: 90,
+                color: Colors.grey,
+              ),
+              SizedBox(height: 15),
+              Text(
+                'Your cart is empty',
+                style: TextStyle(
+                  fontSize: 22,
+                  fontWeight: FontWeight.w900,
+                ),
+              ),
+              SizedBox(height: 7),
+              Text(
+                'Add some paper products to continue.',
+                style: TextStyle(
+                  color: Colors.grey,
+                ),
+              ),
+            ],
+          ),
+        ),
+      );
+    }
+
+    return SafeArea(
+      child: Column(
+        children: [
+          const Padding(
+            padding: EdgeInsets.all(20),
+            child: Align(
+              alignment: Alignment.centerLeft,
+              child: Text(
+                'Shopping Cart',
+                style: TextStyle(
+                  fontSize: 27,
+                  fontWeight: FontWeight.w900,
+                ),
+              ),
+            ),
+          ),
+          Expanded(
+            child: ListView(
+              padding: const EdgeInsets.symmetric(horizontal: 20),
+              children: cartProducts.map((product) {
+                return ProductCard(
+                  product: product,
+                  quantity: cart[product.name] ?? 0,
+                  onAdd: () => onAdd(product),
+                  onRemove: () => onRemove(product),
+                  onTap: () {},
+                );
+              }).toList(),
+            ),
+          ),
+          Container(
+            padding: const EdgeInsets.fromLTRB(20, 15, 20, 20),
+            decoration: const BoxDecoration(
+              color: Colors.white,
+            ),
+            child: Column(
+              children: [
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    const Text(
+                      'Total Amount',
+                      style: TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    Text(
+                      '₹${total.toInt()}',
+                      style: const TextStyle(
+                        fontSize: 24,
+                        fontWeight: FontWeight.w900,
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 14),
+                SizedBox(
+                  width: double.infinity,
+                  child: ElevatedButton(
+                    onPressed: onCheckout,
+                    style: ElevatedButton.styleFrom(
+                      padding: const EdgeInsets.symmetric(
+                        vertical: 17,
+                      ),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(16),
+                      ),
+                    ),
+                    child: const Text(
+                      'Proceed to Checkout',
+                      style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+// ============================================================
+// CHECKOUT PAGE
+// ============================================================
+
+class CheckoutPage extends StatefulWidget {
+  final Map<String, int> cart;
+  final double total;
+
+  const CheckoutPage({
+    super.key,
+    required this.cart,
+    required this.total,
+  });
+
+  @override
+  State<CheckoutPage> createState() => _CheckoutPageState();
+}
+
+class _CheckoutPageState extends State<CheckoutPage> {
+  final nameController = TextEditingController();
+  final phoneController = TextEditingController();
+  final addressController = TextEditingController();
+
+  Future<void> placeOrder() async {
+    if (nameController.text.trim().isEmpty ||
+        phoneController.text.trim().isEmpty ||
+        addressController.text.trim().isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text(
+            'Please fill all customer details.',
+          ),
+        ),
+      );
+      return;
+    }
+
+    String message =
+        'Hello Paper Hub,\n\n'
+        'NEW ORDER\n\n'
+        'Customer: ${nameController.text.trim()}\n'
+        'Mobile: ${phoneController.text.trim()}\n'
+        'Address: ${addressController.text.trim()}\n\n'
+        'Products:\n';
+
+    for (final product in products) {
+      final quantity = widget.cart[product.name] ?? 0;
+
+      if (quantity > 0) {
+        message +=
+            '${product.name} - $quantity ream × ₹${product.price.toInt()}\n';
+      }
+    }
+
+    message +=
+        '\nTotal: ₹${widget.total.toInt()}\n'
+        'Payment: Cash on Delivery';
+
+    final uri = Uri(
+      scheme: 'https',
+      host: 'wa.me',
+      path: '/917038343215',
+      queryParameters: {
+        'text': message,
+      },
+    );
+
+    if (await canLaunchUrl(uri)) {
+      await launchUrl(
+        uri,
+        mode: LaunchMode.externalApplication,
+      );
+    } else {
+      if (!mounted) return;
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text(
+            'WhatsApp could not be opened.',
+          ),
+        ),
+      );
+    }
+  }
+
+  @override
+  void dispose() {
+    nameController.dispose();
+    phoneController.dispose();
+    addressController.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text(
+          'Checkout',
+          style: TextStyle(
+            fontWeight: FontWeight.w900,
+          ),
+        ),
+      ),
+      body: SingleChildScrollView(
+        padding: const EdgeInsets.all(20),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Text(
+              'Delivery Details',
+              style: TextStyle(
+                fontSize: 21,
+                fontWeight: FontWeight.w900,
+              ),
+            ),
+            const SizedBox(height: 15),
+            CheckoutField(
+              controller: nameController,
+              label: 'Full Name',
+              icon: Icons.person_outline,
+            ),
+            const SizedBox(height: 12),
+            CheckoutField(
+              controller: phoneController,
+              label: 'Mobile Number',
+              icon: Icons.phone_outlined,
+              keyboardType: TextInputType.phone,
+            ),
+            const SizedBox(height: 12),
+            CheckoutField(
+              controller: addressController,
+              label: 'Delivery Address',
+              icon: Icons.location_on_outlined,
+              maxLines: 4,
+            ),
+            const SizedBox(height: 22),
+            Container(
+              padding: const EdgeInsets.all(18),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(18),
+              ),
+              child: Column(
+                children: [
+                  const Row(
+                    children: [
+                      Icon(
+                        Icons.payments_outlined,
+                        color: Color(0xFF155EEF),
+                      ),
+                      SizedBox(width: 10),
+                      Text(
+                        'Cash on Delivery',
+                        style: TextStyle(
+                          fontWeight: FontWeight.w800,
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 12),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      const Text('Order Total'),
+                      Text(
+                        '₹${widget.total.toInt()}',
+                        style: const TextStyle(
+                          fontSize: 21,
+                          fontWeight: FontWeight.w900,
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(height: 22),
+            SizedBox(
+              width: double.infinity,
+              child: ElevatedButton.icon(
+                onPressed: placeOrder,
+                icon: const Icon(Icons.chat),
+                label: const Text(
+                  'Place Order on WhatsApp',
+                  style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                style: ElevatedButton.styleFrom(
+                  padding: const EdgeInsets.symmetric(
+                    vertical: 18,
+                  ),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(16),
+                  ),
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+// ============================================================
+// CHECKOUT FIELD
+// ============================================================
+
+class CheckoutField extends StatelessWidget {
+  final TextEditingController controller;
+  final String label;
+  final IconData icon;
+  final TextInputType? keyboardType;
+  final int maxLines;
+
+  const CheckoutField({
+    super.key,
+    required this.controller,
+    required this.label,
+    required this.icon,
+    this.keyboardType,
+    this.maxLines = 1,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return TextField(
+      controller: controller,
+      keyboardType: keyboardType,
+      maxLines: maxLines,
+      decoration: InputDecoration(
+        labelText: label,
+        prefixIcon: Icon(icon),
+        filled: true,
+        fillColor: Colors.white,
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(16),
+          borderSide: BorderSide.none,
+        ),
+      ),
+    );
+  }
+}
+
+// ============================================================
+// ACCOUNT PAGE
+// ============================================================
+
+class AccountPage extends StatelessWidget {
+  const AccountPage({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return SafeArea(
+      child: SingleChildScrollView(
+        padding: const EdgeInsets.all(20),
+        child: Column(
+          children: [
+            const SizedBox(height: 30),
+            Container(
+              width: 90,
+              height: 90,
+              decoration: BoxDecoration(
+                color: const Color(0xFF155EEF),
+                borderRadius: BorderRadius.circular(30),
+              ),
+              child: const Icon(
+                I
