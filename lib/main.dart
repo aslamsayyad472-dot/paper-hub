@@ -1,109 +1,72 @@
 import 'package:flutter/material.dart';
-import 'package:url_launcher/url_launcher.dart';
 
 void main() {
   runApp(const PaperHubApp());
 }
 
 // ---------------------------------------------------------------------------
-// Design Palette (Amazon / Flipkart E-commerce Style)
+// Design Theme Colors (Exact Match with UI Screenshot)
 // ---------------------------------------------------------------------------
 class AppColors {
-  static const Color header = Color(0xFF131921); // Amazon Dark Slate
-  static const Color primary = Color(0xFF2874F0); // Flipkart Royal Blue
-  static const Color accent = Color(0xFFFF9900); // Amazon Amber/Orange
-  static const Color background = Color(0xFFF1F3F6); // Soft gray shopping surface
+  static const Color primary = Color(0xFF0D5CA8); // Clean Royal Blue
+  static const Color primaryLight = Color(0xFFEBF3FC);
+  static const Color background = Color(0xFFF7F9FC);
   static const Color surface = Colors.white;
-  static const Color textPrimary = Color(0xFF212121);
-  static const Color textSecondary = Color(0xFF878787);
-  static const Color border = Color(0xFFE0E0E0);
-  static const Color success = Color(0xFF388E3C);
+  static const Color textDark = Color(0xFF1E293B);
+  static const Color textMuted = Color(0xFF64748B);
+  static const Color border = Color(0xFFE2E8F0);
+  static const Color green = Color(0xFF22C55E);
+  static const Color whatsapp = Color(0xFF25D366);
+  static const Color orange = Color(0xFFF97316);
 }
 
 // ---------------------------------------------------------------------------
-// Product Model with Added Real Image Links
+// Models
 // ---------------------------------------------------------------------------
 class Product {
   final String id;
   final String title;
   final String brand;
-  final int price;
-  final int originalPrice;
   final int gsm;
-  final double rating;
-  final int reviewCount;
-  final String imageUrl;
-  final String tag;
+  final int sheets;
+  final int price;
+  final Color brandColor;
 
   const Product({
     required this.id,
     required this.title,
     required this.brand,
-    required this.price,
-    required this.originalPrice,
     required this.gsm,
-    required this.rating,
-    required this.reviewCount,
-    required this.imageUrl,
-    required this.tag,
+    this.sheets = 500,
+    required this.price,
+    required this.brandColor,
   });
-}
-
-class CartItem {
-  final Product product;
-  int quantity;
-
-  CartItem({required this.product, this.quantity = 1});
 }
 
 final List<Product> kProducts = [
   const Product(
-    id: 'b2b-75',
-    title: 'B2B Copier A4 Paper (75 GSM, 500 Sheets)',
+    id: 'b2b-70',
+    title: 'B2B A4 Paper',
     brand: 'B2B',
-    price: 210,
-    originalPrice: 280,
-    gsm: 75,
-    rating: 4.8,
-    reviewCount: 1420,
-    imageUrl: 'https://m.media-amazon.com/images/I/71vqf0gF8NL.jpg',
-    tag: 'Best Seller',
-  ),
-  const Product(
-    id: 'jk-easy-75',
-    title: 'JK Easy Copier Paper A4 Size 75 GSM (1 Ream)',
-    brand: 'JK Paper',
-    price: 235,
-    originalPrice: 310,
-    gsm: 75,
-    rating: 4.9,
-    reviewCount: 3890,
-    imageUrl: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRyc87lJFR2zYSx6HkuC8xm2wIHg8FtA0hDF1AExDyZgl4QygVzlJ0FEUJy&s=10',
-    tag: 'Assured',
-  ),
-  const Product(
-    id: 'tnpl-ultra-70',
-    title: 'TNPL Ultra White Multi-Purpose A4 Copier Paper',
-    brand: 'TNPL',
-    price: 198,
-    originalPrice: 250,
     gsm: 70,
-    rating: 4.6,
-    reviewCount: 890,
-    imageUrl: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQoA1v0tAf9STUr3RmRJqLnUzqvE0MKNMUf5CYeKg95haj_Yp8rmu0h1hFj&s=10',
-    tag: 'Value Choice',
+    price: 210,
+    brandColor: Color(0xFF1565C0),
   ),
   const Product(
-    id: 'jk-cedar-80',
-    title: 'JK Cedar Super Bright Executive Bond 80 GSM',
-    brand: 'JK Paper',
-    price: 275,
-    originalPrice: 360,
-    gsm: 80,
-    rating: 4.9,
-    reviewCount: 650,
-    imageUrl: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRyc87lJFR2zYSx6HkuC8xm2wIHg8FtA0hDF1AExDyZgl4QygVzlJ0FEUJy&s=10',
-    tag: 'Premium',
+    id: 'jk-70',
+    title: 'JK A4 Paper',
+    brand: 'JK',
+    gsm: 70,
+    price: 230,
+    brandColor: Color(0xFF1E3A8A),
+  ),
+  const Product(
+    id: 'tnpl-70',
+    title: 'TNPL A4 Paper',
+    brand: 'TNPL',
+    gsm: 70,
+    price: 200,
+    brandColor: Color(0xFF2E7D32),
   ),
 ];
 
@@ -119,463 +82,104 @@ class PaperHubApp extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       title: 'Paper Hub',
       theme: ThemeData(
-        useMaterial3: true,
         scaffoldBackgroundColor: AppColors.background,
-        colorScheme: ColorScheme.fromSeed(
-          seedColor: AppColors.primary,
-          primary: AppColors.primary,
-        ),
-        fontFamily: 'Roboto',
-      ),
-      home: const MainShell(),
-    );
-  }
-}
-
-// ---------------------------------------------------------------------------
-// Shell & Bottom Navigation
-// ---------------------------------------------------------------------------
-class MainShell extends StatefulWidget {
-  const MainShell({super.key});
-
-  @override
-  State<MainShell> createState() => _MainShellState();
-}
-
-class _MainShellState extends State<MainShell> {
-  int _currentIndex = 0;
-  final Map<String, CartItem> _cart = {};
-
-  void _addToCart(Product product) {
-    setState(() {
-      if (_cart.containsKey(product.id)) {
-        _cart[product.id]!.quantity += 1;
-      } else {
-        _cart[product.id] = CartItem(product: product);
-      }
-    });
-
-    ScaffoldMessenger.of(context).clearSnackBars();
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text('${product.brand} ream added to cart'),
-        behavior: SnackBarBehavior.floating,
-        backgroundColor: AppColors.header,
-        action: SnackBarAction(
-          label: 'GO TO CART',
-          textColor: AppColors.accent,
-          onPressed: () => setState(() => _currentIndex = 2),
+        primaryColor: AppColors.primary,
+        fontFamily: 'sans-serif',
+        appBarTheme: const AppBarTheme(
+          backgroundColor: AppColors.primary,
+          foregroundColor: Colors.white,
+          elevation: 0,
+          centerTitle: true,
+          titleTextStyle: TextStyle(fontSize: 18, fontWeight: FontWeight.w700, color: Colors.white),
         ),
       ),
-    );
-  }
-
-  void _updateQuantity(String productId, int delta) {
-    setState(() {
-      if (!_cart.containsKey(productId)) return;
-      _cart[productId]!.quantity += delta;
-      if (_cart[productId]!.quantity <= 0) {
-        _cart.remove(productId);
-      }
-    });
-  }
-
-  int get _cartCount => _cart.values.fold(0, (sum, i) => sum + i.quantity);
-
-  @override
-  Widget build(BuildContext context) {
-    final screens = [
-      StoreHomeScreen(onAddProduct: _addToCart),
-      CategoriesScreen(onAddProduct: _addToCart),
-      CartScreen(
-        cartItems: _cart.values.toList(),
-        onUpdateQuantity: _updateQuantity,
-      ),
-      const OrdersScreen(),
-      const AccountScreen(),
-    ];
-
-    return Scaffold(
-      body: IndexedStack(index: _currentIndex, children: screens),
-      bottomNavigationBar: NavigationBar(
-        backgroundColor: Colors.white,
-        elevation: 8,
-        selectedIndex: _currentIndex,
-        indicatorColor: AppColors.primary.withValues(alpha: 0.12),
-        onDestinationSelected: (i) => setState(() => _currentIndex = i),
-        destinations: [
-          const NavigationDestination(
-            icon: Icon(Icons.home_outlined),
-            selectedIcon: Icon(Icons.home, color: AppColors.primary),
-            label: 'Home',
-          ),
-          const NavigationDestination(
-            icon: Icon(Icons.grid_view_outlined),
-            selectedIcon: Icon(Icons.grid_view, color: AppColors.primary),
-            label: 'Brands',
-          ),
-          NavigationDestination(
-            icon: Badge(
-              isLabelVisible: _cartCount > 0,
-              label: Text('$_cartCount'),
-              backgroundColor: AppColors.accent,
-              child: const Icon(Icons.shopping_cart_outlined),
-            ),
-            selectedIcon: Badge(
-              isLabelVisible: _cartCount > 0,
-              label: Text('$_cartCount'),
-              backgroundColor: AppColors.accent,
-              child: const Icon(Icons.shopping_cart, color: AppColors.primary),
-            ),
-            label: 'Cart',
-          ),
-          const NavigationDestination(
-            icon: Icon(Icons.inventory_2_outlined),
-            selectedIcon: Icon(Icons.inventory_2, color: AppColors.primary),
-            label: 'Orders',
-          ),
-          const NavigationDestination(
-            icon: Icon(Icons.person_outline),
-            selectedIcon: Icon(Icons.person, color: AppColors.primary),
-            label: 'Account',
-          ),
-        ],
-      ),
+      home: const SplashScreen(),
     );
   }
 }
 
 // ---------------------------------------------------------------------------
-// Screen 1: Store Home (Amazon/Flipkart Style)
+// Custom Graphic: 3D-Styled Realistic A4 Paper Ream Box
 // ---------------------------------------------------------------------------
-class StoreHomeScreen extends StatelessWidget {
-  final ValueChanged<Product> onAddProduct;
+class PaperReamWidget extends StatelessWidget {
+  final String brand;
+  final Color primaryColor;
+  final double width;
+  final double height;
 
-  const StoreHomeScreen({super.key, required this.onAddProduct});
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      body: CustomScrollView(
-        slivers: [
-          // Amazon Style Top Bar
-          SliverAppBar(
-            floating: true,
-            pinned: true,
-            backgroundColor: AppColors.header,
-            expandedHeight: 110,
-            flexibleSpace: FlexibleSpaceBar(
-              background: Padding(
-                padding: const EdgeInsets.fromLTRB(16, 40, 16, 8),
-                child: Column(
-                  children: [
-                    Row(
-                      children: [
-                        const Icon(Icons.local_shipping, color: AppColors.accent, size: 22),
-                        const SizedBox(width: 8),
-                        const Text(
-                          'PAPER HUB',
-                          style: TextStyle(
-                            color: Colors.white,
-                            fontSize: 18,
-                            fontWeight: FontWeight.w900,
-                            letterSpacing: 1.2,
-                          ),
-                        ),
-                        const Spacer(),
-                        Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
-                          decoration: BoxDecoration(
-                            color: AppColors.accent,
-                            borderRadius: BorderRadius.circular(4),
-                          ),
-                          child: const Text(
-                            'WHOLESALE',
-                            style: TextStyle(
-                              color: AppColors.header,
-                              fontSize: 10,
-                              fontWeight: FontWeight.w800,
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 10),
-                    // Search Bar
-                    Container(
-                      height: 42,
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                      padding: const EdgeInsets.symmetric(horizontal: 10),
-                      child: const Row(
-                        children: [
-                          Icon(Icons.search, color: AppColors.textSecondary),
-                          SizedBox(width: 8),
-                          Text(
-                            'Search JK, TNPL, B2B Copier Paper...',
-                            style: TextStyle(color: AppColors.textSecondary, fontSize: 13),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-          ),
-
-          // Banner
-          SliverToBoxAdapter(
-            child: Container(
-              margin: const EdgeInsets.all(12),
-              padding: const EdgeInsets.all(16),
-              decoration: BoxDecoration(
-                gradient: const LinearGradient(
-                  colors: [Color(0xFF2874F0), Color(0xFF0C4BB3)],
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
-                ),
-                borderRadius: BorderRadius.circular(12),
-              ),
-              child: Row(
-                children: [
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
-                          decoration: BoxDecoration(
-                            color: AppColors.accent,
-                            borderRadius: BorderRadius.circular(4),
-                          ),
-                          child: const Text(
-                            'FLAT 25% OFF',
-                            style: TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: Colors.white),
-                          ),
-                        ),
-                        const SizedBox(height: 8),
-                        const Text(
-                          'Direct Factory Rates\nFree Express Delivery',
-                          style: TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold, height: 1.2),
-                        ),
-                        const SizedBox(height: 6),
-                        const Text(
-                          'Minimum 5 boxes delivery free',
-                          style: TextStyle(color: Colors.white70, fontSize: 11),
-                        ),
-                      ],
-                    ),
-                  ),
-                  ClipRRect(
-                    borderRadius: BorderRadius.circular(8),
-                    child: Image.network(
-                      'https://m.media-amazon.com/images/I/71vqf0gF8NL.jpg',
-                      width: 90,
-                      height: 80,
-                      fit: BoxFit.cover,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ),
-
-          // Deals of the day title
-          const SliverToBoxAdapter(
-            child: Padding(
-              padding: EdgeInsets.fromLTRB(16, 8, 16, 8),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Text(
-                    'Deals of the Day',
-                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: AppColors.textPrimary),
-                  ),
-                  Text(
-                    'View All >',
-                    style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: AppColors.primary),
-                  ),
-                ],
-              ),
-            ),
-          ),
-
-          // Product List
-          SliverPadding(
-            padding: const EdgeInsets.symmetric(horizontal: 12),
-            sliver: SliverList(
-              delegate: SliverChildBuilderDelegate(
-                (context, index) {
-                  final p = kProducts[index];
-                  return ProductCardAmazon(product: p, onAdd: () => onAddProduct(p));
-                },
-                childCount: kProducts.length,
-              ),
-            ),
-          ),
-          const SliverToBoxAdapter(child: SizedBox(height: 30)),
-        ],
-      ),
-    );
-  }
-}
-
-class ProductCardAmazon extends StatelessWidget {
-  final Product product;
-  final VoidCallback onAdd;
-
-  const ProductCardAmazon({super.key, required this.product, required this.onAdd});
+  const PaperReamWidget({
+    super.key,
+    required this.brand,
+    required this.primaryColor,
+    this.width = 90,
+    this.height = 100,
+  });
 
   @override
   Widget build(BuildContext context) {
-    final discountPercent = (((product.originalPrice - product.price) / product.originalPrice) * 100).round();
-
     return Container(
-      margin: const EdgeInsets.only(bottom: 12),
-      padding: const EdgeInsets.all(12),
+      width: width,
+      height: height,
       decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(10),
-        border: Border.all(color: AppColors.border),
-      ),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          // Product Image with Label
-          Stack(
-            children: [
-              ClipRRect(
-                borderRadius: BorderRadius.circular(8),
-                child: Image.network(
-                  product.imageUrl,
-                  height: 110,
-                  width: 100,
-                  fit: BoxFit.cover,
-                  errorBuilder: (_, __, ___) => Container(
-                    height: 110,
-                    width: 100,
-                    color: AppColors.background,
-                    child: const Icon(Icons.file_copy, size: 40, color: AppColors.primary),
-                  ),
-                ),
-              ),
-              Positioned(
-                top: 0,
-                left: 0,
-                child: Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-                  decoration: const BoxDecoration(
-                    color: AppColors.header,
-                    borderRadius: BorderRadius.only(bottomRight: Radius.circular(6)),
-                  ),
-                  child: Text(
-                    product.tag,
-                    style: const TextStyle(color: Colors.white, fontSize: 9, fontWeight: FontWeight.bold),
-                  ),
-                ),
-              ),
-            ],
+        color: primaryColor,
+        borderRadius: BorderRadius.circular(6),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.12),
+            blurRadius: 6,
+            offset: const Offset(2, 4),
           ),
-          const SizedBox(width: 12),
-
-          // Details
-          Expanded(
+        ],
+      ),
+      child: Stack(
+        children: [
+          Positioned(
+            right: 0,
+            top: 0,
+            bottom: 0,
+            child: Container(
+              width: width * 0.18,
+              decoration: BoxDecoration(
+                color: Colors.white.withOpacity(0.85),
+                borderRadius: const BorderRadius.only(
+                  topRight: Radius.circular(6),
+                  bottomRight: Radius.circular(6),
+                ),
+              ),
+              child: ListView.builder(
+                physics: const NeverScrollableScrollPhysics(),
+                itemCount: 15,
+                itemBuilder: (_, __) => Container(
+                  height: 2,
+                  margin: const EdgeInsets.symmetric(vertical: 2),
+                  color: Colors.grey.shade300,
+                ),
+              ),
+            ),
+          ),
+          Padding(
+            padding: const EdgeInsets.all(8.0),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Text(
-                  product.title,
-                  maxLines: 2,
-                  overflow: TextOverflow.ellipsis,
-                  style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 14, height: 1.2),
-                ),
-                const SizedBox(height: 4),
-
-                // Rating & GSM
-                Row(
-                  children: [
-                    Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 2),
-                      decoration: BoxDecoration(
-                        color: AppColors.success,
-                        borderRadius: BorderRadius.circular(4),
-                      ),
-                      child: Row(
-                        children: [
-                          Text(
-                            '${product.rating}',
-                            style: const TextStyle(color: Colors.white, fontSize: 11, fontWeight: FontWeight.bold),
-                          ),
-                          const SizedBox(width: 2),
-                          const Icon(Icons.star, size: 10, color: Colors.white),
-                        ],
-                      ),
-                    ),
-                    const SizedBox(width: 6),
-                    Text(
-                      '(${product.reviewCount})',
-                      style: const TextStyle(color: AppColors.textSecondary, fontSize: 11),
-                    ),
-                    const Spacer(),
-                    Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-                      decoration: BoxDecoration(
-                        color: AppColors.background,
-                        borderRadius: BorderRadius.circular(4),
-                      ),
-                      child: Text(
-                        '${product.gsm} GSM',
-                        style: const TextStyle(fontSize: 11, fontWeight: FontWeight.bold),
-                      ),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 8),
-
-                // Price & Offer
-                Row(
-                  crossAxisAlignment: CrossAxisAlignment.baseline,
-                  textBaseline: TextBaseline.alphabetic,
-                  children: [
-                    Text(
-                      '₹${product.price}',
-                      style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: AppColors.textPrimary),
-                    ),
-                    const SizedBox(width: 6),
-                    Text(
-                      '₹${product.originalPrice}',
-                      style: const TextStyle(
-                        fontSize: 12,
-                        color: AppColors.textSecondary,
-                        decoration: TextDecoration.lineThrough,
-                      ),
-                    ),
-                    const SizedBox(width: 6),
-                    Text(
-                      '$discountPercent% off',
-                      style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: AppColors.success),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 8),
-
-                // Action Button
-                Align(
-                  alignment: Alignment.centerRight,
-                  child: ElevatedButton(
-                    onPressed: onAdd,
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: AppColors.accent,
-                      foregroundColor: AppColors.header,
-                      elevation: 0,
-                      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(6)),
-                    ),
-                    child: const Text('Add to Cart', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 12)),
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 2),
+                  decoration: BoxDecoration(
+                    color: Colors.white.withOpacity(0.2),
+                    borderRadius: BorderRadius.circular(3),
                   ),
+                  child: Text(
+                    brand,
+                    style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w900, fontSize: 13),
+                  ),
+                ),
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const Text('A4', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 14)),
+                    Text('70 GSM', style: TextStyle(color: Colors.white.withOpacity(0.85), fontSize: 9)),
+                  ],
                 ),
               ],
             ),
@@ -587,312 +191,322 @@ class ProductCardAmazon extends StatelessWidget {
 }
 
 // ---------------------------------------------------------------------------
-// Screen 2: Categories / Brands
+// 1. Splash Screen
 // ---------------------------------------------------------------------------
-class CategoriesScreen extends StatelessWidget {
-  final ValueChanged<Product> onAddProduct;
-
-  const CategoriesScreen({super.key, required this.onAddProduct});
+class SplashScreen extends StatelessWidget {
+  const SplashScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Brands & Grades', style: TextStyle(fontWeight: FontWeight.bold)),
-        backgroundColor: Colors.white,
-      ),
-      body: ListView(
-        padding: const EdgeInsets.all(12),
-        children: [
-          const Text('Select by Brand', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
-          const SizedBox(height: 10),
-          Row(
+      backgroundColor: Colors.white,
+      body: SafeArea(
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 20),
+          child: Column(
             children: [
-              _brandChip('JK Paper'),
-              const SizedBox(width: 8),
-              _brandChip('TNPL'),
-              const SizedBox(width: 8),
-              _brandChip('B2B Copier'),
+              const Spacer(),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Container(
+                    padding: const EdgeInsets.all(12),
+                    decoration: BoxDecoration(
+                      color: AppColors.primaryLight,
+                      borderRadius: BorderRadius.circular(16),
+                    ),
+                    child: const Icon(Icons.layers, color: AppColors.primary, size: 40),
+                  ),
+                  const SizedBox(width: 12),
+                  const Text(
+                    'PAPER HUB',
+                    style: TextStyle(
+                      fontSize: 30,
+                      fontWeight: FontWeight.w900,
+                      color: AppColors.primary,
+                      letterSpacing: 1.2,
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 8),
+              const Text('All Types of A4 Paper', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: AppColors.textDark)),
+              const Text('Best Quality  |  Best Price', style: TextStyle(fontSize: 12, color: AppColors.textMuted)),
+              const SizedBox(height: 30),
+              const Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  _BrandPill(name: 'B2B', color: Color(0xFFD32F2F)),
+                  SizedBox(width: 16),
+                  _BrandPill(name: 'JK PAPER', color: AppColors.primary),
+                  SizedBox(width: 16),
+                  _BrandPill(name: 'TNPL', color: Color(0xFF2E7D32)),
+                ],
+              ),
+              const SizedBox(height: 40),
+              Container(
+                height: 180,
+                width: double.infinity,
+                decoration: BoxDecoration(
+                  color: AppColors.primaryLight.withOpacity(0.5),
+                  borderRadius: BorderRadius.circular(20),
+                ),
+                child: const Center(
+                  child: Icon(Icons.inventory, size: 90, color: AppColors.primary),
+                ),
+              ),
+              const Spacer(),
+              ElevatedButton(
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: AppColors.primary,
+                  minimumSize: const Size(double.infinity, 50),
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                ),
+                onPressed: () {
+                  Navigator.pushReplacement(
+                    context,
+                    MaterialPageRoute(builder: (_) => const MainNavigationShell()),
+                  );
+                },
+                child: const Text('Get Started', style: TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold)),
+              ),
+              const SizedBox(height: 10),
+              const Text('Your Paper Partner', style: TextStyle(fontSize: 12, color: AppColors.textMuted)),
             ],
           ),
-          const SizedBox(height: 16),
-          ...kProducts.map((p) => ProductCardAmazon(product: p, onAdd: () => onAddProduct(p))),
-        ],
+        ),
       ),
     );
   }
+}
 
-  Widget _brandChip(String name) {
+class _BrandPill extends StatelessWidget {
+  final String name;
+  final Color color;
+  const _BrandPill({required this.name, required this.color});
+
+  @override
+  Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(20),
+        borderRadius: BorderRadius.circular(8),
         border: Border.all(color: AppColors.border),
       ),
-      child: Text(name, style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 13)),
+      child: Text(
+        name,
+        style: TextStyle(color: color, fontWeight: FontWeight.w900, fontSize: 11),
+      ),
     );
   }
 }
 
 // ---------------------------------------------------------------------------
-// Screen 3: Cart Screen with Sticky Checkout Bar
+// Main Navigation Shell (Tabs: Home, Products, Cart, Orders, Contact)
 // ---------------------------------------------------------------------------
-class CartScreen extends StatelessWidget {
-  final List<CartItem> cartItems;
-  final Function(String id, int delta) onUpdateQuantity;
+class MainNavigationShell extends StatefulWidget {
+  const MainNavigationShell({super.key});
 
-  const CartScreen({super.key, required this.cartItems, required this.onUpdateQuantity});
+  @override
+  State<MainNavigationShell> createState() => _MainNavigationShellState();
+}
+
+class _MainNavigationShellState extends State<MainNavigationShell> {
+  int _currentIndex = 0;
+  final Map<String, int> _cart = {'b2b-70': 2, 'jk-70': 1, 'tnpl-70': 1};
+
+  void _updateCart(String id, int delta) {
+    setState(() {
+      _cart[id] = (_cart[id] ?? 0) + delta;
+      if (_cart[id]! <= 0) _cart.remove(id);
+    });
+  }
+
+  int get cartCount => _cart.values.fold(0, (sum, q) => sum + q);
 
   @override
   Widget build(BuildContext context) {
-    if (cartItems.isEmpty) {
-      return Scaffold(
-        appBar: AppBar(title: const Text('My Cart'), backgroundColor: Colors.white),
-        body: Center(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Image.network(
-                'https://cdn-icons-png.flaticon.com/512/1170/1170576.png',
-                width: 90,
-                color: AppColors.textSecondary,
-              ),
-              const SizedBox(height: 16),
-              const Text('Your Cart is Empty!', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
-              const SizedBox(height: 6),
-              const Text('Add paper reams to place wholesale order', style: TextStyle(color: AppColors.textSecondary)),
-            ],
-          ),
-        ),
-      );
-    }
-
-    final total = cartItems.fold<int>(0, (sum, i) => sum + (i.product.price * i.quantity));
-    final totalReams = cartItems.fold<int>(0, (sum, i) => sum + i.quantity);
+    final screens = [
+      HomeScreen(
+        onViewProducts: () => setState(() => _currentIndex = 1),
+        onOpenCart: () => setState(() => _currentIndex = 2),
+      ),
+      ProductsScreen(
+        onAddToCart: (p) => _updateCart(p.id, 1),
+        onOpenCart: () => setState(() => _currentIndex = 2),
+      ),
+      CartScreen(
+        cart: _cart,
+        onUpdateQuantity: _updateCart,
+        onClearCart: () => setState(() => _cart.clear()),
+      ),
+      const OrdersScreen(),
+      const ContactScreen(),
+    ];
 
     return Scaffold(
-      appBar: AppBar(title: const Text('My Cart'), backgroundColor: Colors.white),
-      body: Column(
-        children: [
-          Expanded(
-            child: ListView.separated(
-              padding: const EdgeInsets.all(12),
-              itemCount: cartItems.length,
-              separatorBuilder: (_, __) => const SizedBox(height: 8),
-              itemBuilder: (context, index) {
-                final item = cartItems[index];
-                return Container(
-                  padding: const EdgeInsets.all(12),
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(8),
-                    border: Border.all(color: AppColors.border),
-                  ),
-                  child: Row(
-                    children: [
-                      ClipRRect(
-                        borderRadius: BorderRadius.circular(6),
-                        child: Image.network(item.product.imageUrl, width: 60, height: 60, fit: BoxFit.cover),
-                      ),
-                      const SizedBox(width: 12),
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(item.product.title, maxLines: 1, overflow: TextOverflow.ellipsis, style: const TextStyle(fontWeight: FontWeight.bold)),
-                            const SizedBox(height: 4),
-                            Text('₹${item.product.price} / ream', style: const TextStyle(color: AppColors.textSecondary, fontSize: 12)),
-                          ],
-                        ),
-                      ),
-                      Row(
-                        children: [
-                          IconButton(
-                            icon: const Icon(Icons.remove_circle_outline, color: AppColors.textSecondary),
-                            onPressed: () => onUpdateQuantity(item.product.id, -1),
-                          ),
-                          Text('${item.quantity}', style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
-                          IconButton(
-                            icon: const Icon(Icons.add_circle_outline, color: AppColors.primary),
-                            onPressed: () => onUpdateQuantity(item.product.id, 1),
-                          ),
-                        ],
-                      ),
-                    ],
-                  ),
-                );
-              },
+      body: IndexedStack(index: _currentIndex, children: screens),
+      bottomNavigationBar: BottomNavigationBar(
+        currentIndex: _currentIndex,
+        onTap: (i) => setState(() => _currentIndex = i),
+        type: BottomNavigationBarType.fixed,
+        selectedItemColor: AppColors.primary,
+        unselectedItemColor: AppColors.textMuted,
+        selectedLabelStyle: const TextStyle(fontWeight: FontWeight.bold, fontSize: 11),
+        unselectedLabelStyle: const TextStyle(fontSize: 11),
+        items: [
+          const BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Home'),
+          const BottomNavigationBarItem(icon: Icon(Icons.grid_view), label: 'Products'),
+          BottomNavigationBarItem(
+            icon: Badge(
+              isLabelVisible: cartCount > 0,
+              label: Text('$cartCount'),
+              child: const Icon(Icons.shopping_cart),
             ),
+            label: 'Cart',
           ),
+          const BottomNavigationBarItem(icon: Icon(Icons.receipt_long), label: 'Orders'),
+          const BottomNavigationBarItem(icon: Icon(Icons.support_agent), label: 'Contact'),
+        ],
+      ),
+    );
+  }
+}
 
-          // Sticky Bottom Bar
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-            decoration: const BoxDecoration(
-              color: Colors.white,
-              border: Border(top: BorderSide(color: AppColors.border)),
-            ),
-            child: SafeArea(
+// ---------------------------------------------------------------------------
+// 2. Home Screen
+// ---------------------------------------------------------------------------
+class HomeScreen extends StatelessWidget {
+  final VoidCallback onViewProducts;
+  final VoidCallback onOpenCart;
+
+  const HomeScreen({super.key, required this.onViewProducts, required this.onOpenCart});
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        leading: const Icon(Icons.menu),
+        title: const Text('Paper Hub'),
+        actions: [
+          IconButton(icon: const Icon(Icons.shopping_cart_outlined), onPressed: onOpenCart),
+        ],
+      ),
+      body: SingleChildScrollView(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // Banner
+            Container(
+              margin: const EdgeInsets.all(16),
+              padding: const EdgeInsets.all(16),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(12),
+                border: Border.all(color: AppColors.border),
+              ),
               child: Row(
                 children: [
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Text('₹$total', style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: AppColors.textPrimary)),
-                      Text('$totalReams Reams selected', style: const TextStyle(color: AppColors.textSecondary, fontSize: 11)),
-                    ],
-                  ),
-                  const Spacer(),
-                  ElevatedButton(
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: AppColors.accent,
-                      foregroundColor: AppColors.header,
-                      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(6)),
+                  const Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text('Quality A4 Paper\nat Best Price', style: TextStyle(fontSize: 17, fontWeight: FontWeight.w900, height: 1.2)),
+                        SizedBox(height: 6),
+                        Text('For Office | School | Business', style: TextStyle(color: AppColors.textMuted, fontSize: 12)),
+                      ],
                     ),
-                    onPressed: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (_) => CheckoutScreen(cart: cartItems, total: total),
-                        ),
-                      );
-                    },
-                    child: const Text('PLACE ORDER', style: TextStyle(fontWeight: FontWeight.bold)),
+                  ),
+                  Row(
+                    children: const [
+                      PaperReamWidget(brand: 'B2B', primaryColor: Color(0xFF1565C0), width: 45, height: 60),
+                      SizedBox(width: 4),
+                      PaperReamWidget(brand: 'TNPL', primaryColor: Color(0xFF2E7D32), width: 45, height: 60),
+                    ],
                   ),
                 ],
               ),
             ),
-          ),
-        ],
-      ),
-    );
-  }
-}
 
-// ---------------------------------------------------------------------------
-// Screen 4: Checkout Screen (Instant WhatsApp Launch)
-// ---------------------------------------------------------------------------
-class CheckoutScreen extends StatefulWidget {
-  final List<CartItem> cart;
-  final int total;
-
-  const CheckoutScreen({super.key, required this.cart, required this.total});
-
-  @override
-  State<CheckoutScreen> createState() => _CheckoutScreenState();
-}
-
-class _CheckoutScreenState extends State<CheckoutScreen> {
-  final _formKey = GlobalKey<FormState>();
-  final _nameController = TextEditingController();
-  final _shopController = TextEditingController();
-  final _phoneController = TextEditingController();
-  final _addressController = TextEditingController();
-
-  Future<void> _submitOrder() async {
-    if (!_formKey.currentState!.validate()) return;
-
-    final items = widget.cart
-        .map((c) => '${c.product.brand} (${c.product.gsm} GSM) x ${c.quantity} Ream')
-        .join('\n');
-
-    final message = '''
-Hello Paper Hub,
-I want to place an order:
-
-*Customer:* ${_nameController.text.trim()}
-*Shop Name:* ${_shopController.text.trim().isEmpty ? 'N/A' : _shopController.text.trim()}
-*Mobile:* ${_phoneController.text.trim()}
-*Address:* ${_addressController.text.trim()}
-
-*Products:*
-$items
-
-*Total Amount:* ₹${widget.total}
-*Payment Mode:* Cash on Delivery
-''';
-
-    final uri = Uri.parse('https://wa.me/917038343215?text=${Uri.encodeComponent(message)}');
-
-    try {
-      await launchUrl(uri, mode: LaunchMode.externalApplication);
-    } catch (e) {
-      if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('WhatsApp open nahi ho saka')),
-      );
-    }
-  }
-
-  @override
-  void dispose() {
-    _nameController.dispose();
-    _shopController.dispose();
-    _phoneController.dispose();
-    _addressController.dispose();
-    super.dispose();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Delivery Details', style: TextStyle(fontWeight: FontWeight.bold)),
-        backgroundColor: Colors.white,
-      ),
-      body: Form(
-        key: _formKey,
-        child: ListView(
-          padding: const EdgeInsets.all(16),
-          children: [
-            _buildField('Full Name', _nameController, Icons.person_outline, (v) => v!.isEmpty ? 'Enter name' : null),
-            const SizedBox(height: 12),
-            _buildField('Shop / Business Name (Optional)', _shopController, Icons.storefront_outlined, null),
-            const SizedBox(height: 12),
-            _buildField('10-Digit Mobile Number', _phoneController, Icons.phone_outlined, (v) => v!.length < 10 ? 'Enter valid number' : null, type: TextInputType.phone),
-            const SizedBox(height: 12),
-            _buildField('Complete Address with Landmark', _addressController, Icons.location_on_outlined, (v) => v!.isEmpty ? 'Enter address' : null, maxLines: 3),
-            const SizedBox(height: 18),
-
-            // Price Details Summary Box
-            Container(
-              padding: const EdgeInsets.all(14),
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(8),
-                border: Border.all(color: AppColors.border),
-              ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
+            // Brands Circles
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceAround,
                 children: [
-                  const Text('PRICE DETAILS', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 12, color: AppColors.textSecondary)),
-                  const Divider(height: 16),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      const Text('Total Payable (COD)'),
-                      Text('₹${widget.total}', style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: AppColors.success)),
-                    ],
-                  ),
+                  _BrandIconCard(name: 'B2B Paper', color: const Color(0xFFD32F2F), onTap: onViewProducts),
+                  _BrandIconCard(name: 'JK Paper', color: AppColors.primary, onTap: onViewProducts),
+                  _BrandIconCard(name: 'TNPL Paper', color: const Color(0xFF2E7D32), onTap: onViewProducts),
                 ],
               ),
             ),
             const SizedBox(height: 20),
 
+            // Products Header
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  const Text('Our Products', style: TextStyle(fontSize: 16, fontWeight: FontWeight.w900)),
+                  GestureDetector(
+                    onTap: onViewProducts,
+                    child: const Text('View All >', style: TextStyle(color: AppColors.primary, fontWeight: FontWeight.bold, fontSize: 13)),
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(height: 12),
+
+            // Horizontal Product Grid
             SizedBox(
-              height: 48,
-              child: ElevatedButton.icon(
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0xFF25D366), // WhatsApp Official Green
-                  foregroundColor: Colors.white,
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-                ),
-                onPressed: _submitOrder,
-                icon: const Icon(Icons.chat),
-                label: const Text('CONFIRM ON WHATSAPP', style: TextStyle(fontWeight: FontWeight.bold)),
+              height: 230,
+              child: ListView.builder(
+                scrollDirection: Axis.horizontal,
+                padding: const EdgeInsets.symmetric(horizontal: 12),
+                itemCount: kProducts.length,
+                itemBuilder: (context, i) {
+                  final p = kProducts[i];
+                  return Container(
+                    width: 135,
+                    margin: const EdgeInsets.symmetric(horizontal: 4),
+                    padding: const EdgeInsets.all(10),
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(10),
+                      border: Border.all(color: AppColors.border),
+                    ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: [
+                        PaperReamWidget(brand: p.brand, primaryColor: p.brandColor, width: 85, height: 95),
+                        const SizedBox(height: 8),
+                        Text(p.title, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 12)),
+                        Text('₹${p.price} / Ream', style: const TextStyle(color: AppColors.primary, fontWeight: FontWeight.bold, fontSize: 11)),
+                        const Spacer(),
+                        SizedBox(
+                          width: double.infinity,
+                          height: 28,
+                          child: ElevatedButton(
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: AppColors.primary,
+                              padding: EdgeInsets.zero,
+                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(5)),
+                            ),
+                            onPressed: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(builder: (_) => ProductDetailsScreen(product: p)),
+                              );
+                            },
+                            child: const Text('View Details', style: TextStyle(fontSize: 11, color: Colors.white)),
+                          ),
+                        ),
+                      ],
+                    ),
+                  );
+                },
               ),
             ),
           ],
@@ -900,26 +514,678 @@ $items
       ),
     );
   }
+}
 
-  Widget _buildField(String hint, TextEditingController controller, IconData icon, String? Function(String?)? validator, {int maxLines = 1, TextInputType type = TextInputType.text}) {
-    return TextFormField(
-      controller: controller,
-      maxLines: maxLines,
-      keyboardType: type,
-      validator: validator,
-      decoration: InputDecoration(
-        labelText: hint,
-        prefixIcon: Icon(icon, color: AppColors.textSecondary),
-        filled: true,
-        fillColor: Colors.white,
-        border: OutlineInputBorder(borderRadius: BorderRadius.circular(8), borderSide: const BorderSide(color: AppColors.border)),
+class _BrandIconCard extends StatelessWidget {
+  final String name;
+  final Color color;
+  final VoidCallback onTap;
+
+  const _BrandIconCard({required this.name, required this.color, required this.onTap});
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Column(
+        children: [
+          Container(
+            width: 65,
+            height: 65,
+            decoration: BoxDecoration(
+              color: Colors.white,
+              shape: BoxShape.circle,
+              border: Border.all(color: AppColors.border),
+            ),
+            child: Center(
+              child: Text(
+                name.split(' ')[0],
+                style: TextStyle(color: color, fontWeight: FontWeight.w900, fontSize: 13),
+              ),
+            ),
+          ),
+          const SizedBox(height: 6),
+          Text(name, style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w600)),
+        ],
       ),
     );
   }
 }
 
 // ---------------------------------------------------------------------------
-// Screen 5: Orders Tab
+// 3. Products Screen
+// ---------------------------------------------------------------------------
+class ProductsScreen extends StatefulWidget {
+  final Function(Product) onAddToCart;
+  final VoidCallback onOpenCart;
+
+  const ProductsScreen({super.key, required this.onAddToCart, required this.onOpenCart});
+
+  @override
+  State<ProductsScreen> createState() => _ProductsScreenState();
+}
+
+class _ProductsScreenState extends State<ProductsScreen> {
+  String _selectedCategory = 'All';
+
+  @override
+  Widget build(BuildContext context) {
+    final filtered = _selectedCategory == 'All'
+        ? kProducts
+        : kProducts.where((p) => p.brand.toUpperCase() == _selectedCategory.toUpperCase()).toList();
+
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('Products'),
+        actions: [
+          IconButton(icon: const Icon(Icons.search), onPressed: () {}),
+          IconButton(icon: const Icon(Icons.shopping_cart_outlined), onPressed: widget.onOpenCart),
+        ],
+      ),
+      body: Column(
+        children: [
+          // Filter Chips
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+            color: Colors.white,
+            child: Row(
+              children: ['All', 'B2B', 'JK', 'TNPL'].map((cat) {
+                final isSelected = _selectedCategory == cat;
+                return Padding(
+                  padding: const EdgeInsets.only(right: 8),
+                  child: ChoiceChip(
+                    label: Text(cat),
+                    selected: isSelected,
+                    selectedColor: AppColors.primary,
+                    backgroundColor: Colors.white,
+                    labelStyle: TextStyle(
+                      color: isSelected ? Colors.white : AppColors.textDark,
+                      fontWeight: FontWeight.bold,
+                      fontSize: 12,
+                    ),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(8),
+                      side: BorderSide(color: isSelected ? AppColors.primary : AppColors.border),
+                    ),
+                    onSelected: (_) => setState(() => _selectedCategory = cat),
+                  ),
+                );
+              }).toList(),
+            ),
+          ),
+
+          // Product List
+          Expanded(
+            child: ListView.builder(
+              padding: const EdgeInsets.all(12),
+              itemCount: filtered.length,
+              itemBuilder: (context, i) {
+                final p = filtered[i];
+                return Container(
+                  margin: const EdgeInsets.only(bottom: 12),
+                  padding: const EdgeInsets.all(12),
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(10),
+                    border: Border.all(color: AppColors.border),
+                  ),
+                  child: Row(
+                    children: [
+                      PaperReamWidget(brand: p.brand, primaryColor: p.brandColor, width: 80, height: 95),
+                      const SizedBox(width: 14),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(p.title, style: const TextStyle(fontWeight: FontWeight.w900, fontSize: 15)),
+                            Text('${p.gsm} GSM | ${p.sheets} Sheets (1 Ream)', style: const TextStyle(color: AppColors.textMuted, fontSize: 11)),
+                            const SizedBox(height: 6),
+                            Row(
+                              crossAxisAlignment: CrossAxisAlignment.baseline,
+                              textBaseline: TextBaseline.alphabetic,
+                              children: [
+                                Text('₹${p.price}', style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w900, color: AppColors.primary)),
+                                const Text(' / Ream', style: TextStyle(color: AppColors.textMuted, fontSize: 12)),
+                              ],
+                            ),
+                            const SizedBox(height: 8),
+                            ElevatedButton(
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: AppColors.primary,
+                                padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
+                                minimumSize: const Size(90, 32),
+                                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(6)),
+                              ),
+                              onPressed: () {
+                                widget.onAddToCart(p);
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(content: Text('${p.title} added to cart')),
+                                );
+                              },
+                              child: const Text('Add to Cart', style: TextStyle(fontSize: 12, color: Colors.white)),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                );
+              },
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+// ---------------------------------------------------------------------------
+// 4. Product Details Screen
+// ---------------------------------------------------------------------------
+class ProductDetailsScreen extends StatefulWidget {
+  final Product product;
+  const ProductDetailsScreen({super.key, required this.product});
+
+  @override
+  State<ProductDetailsScreen> createState() => _ProductDetailsScreenState();
+}
+
+class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
+  int quantity = 1;
+
+  @override
+  Widget build(BuildContext context) {
+    final p = widget.product;
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('Product Details'),
+        actions: const [
+          Padding(
+            padding: EdgeInsets.only(right: 16),
+            child: Icon(Icons.shopping_cart_outlined),
+          ),
+        ],
+      ),
+      body: SingleChildScrollView(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Container(
+              height: 220,
+              width: double.infinity,
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(12),
+                border: Border.all(color: AppColors.border),
+              ),
+              child: Center(
+                child: PaperReamWidget(brand: p.brand, primaryColor: p.brandColor, width: 140, height: 165),
+              ),
+            ),
+            const SizedBox(height: 16),
+            Text(p.title, style: const TextStyle(fontSize: 20, fontWeight: FontWeight.w900)),
+            Text('${p.gsm} GSM | ${p.sheets} Sheets (1 Ream)', style: const TextStyle(color: AppColors.textMuted, fontSize: 13)),
+            const SizedBox(height: 10),
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.baseline,
+              textBaseline: TextBaseline.alphabetic,
+              children: [
+                Text('₹${p.price}', style: const TextStyle(fontSize: 22, fontWeight: FontWeight.w900, color: AppColors.primary)),
+                const Text(' / Ream', style: TextStyle(color: AppColors.textMuted, fontSize: 13)),
+              ],
+            ),
+            const SizedBox(height: 16),
+            const _FeatureRow(text: 'High brightness'),
+            const _FeatureRow(text: 'Smooth finish'),
+            const _FeatureRow(text: 'Best for printing & photocopy'),
+            const _FeatureRow(text: 'Trusted quality'),
+            const SizedBox(height: 20),
+            Row(
+              children: [
+                Container(
+                  decoration: BoxDecoration(
+                    color: AppColors.primaryLight,
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: Row(
+                    children: [
+                      IconButton(
+                        icon: const Icon(Icons.remove, size: 18, color: AppColors.primary),
+                        onPressed: () {
+                          if (quantity > 1) setState(() => quantity--);
+                        },
+                      ),
+                      Text('$quantity', style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+                      IconButton(
+                        icon: const Icon(Icons.add, size: 18, color: AppColors.primary),
+                        onPressed: () => setState(() => quantity++),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 24),
+            ElevatedButton(
+              style: ElevatedButton.styleFrom(
+                backgroundColor: AppColors.primary,
+                minimumSize: const Size(double.infinity, 50),
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+              ),
+              onPressed: () {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(content: Text('Added $quantity reams to cart')),
+                );
+              },
+              child: const Text('Add to Cart', style: TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold)),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _FeatureRow extends StatelessWidget {
+  final String text;
+  const _FeatureRow({required this.text});
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 8),
+      child: Row(
+        children: [
+          const Icon(Icons.check_circle, color: AppColors.green, size: 18),
+          const SizedBox(width: 8),
+          Text(text, style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w500)),
+        ],
+      ),
+    );
+  }
+}
+
+// ---------------------------------------------------------------------------
+// 5. Cart Screen
+// ---------------------------------------------------------------------------
+class CartScreen extends StatelessWidget {
+  final Map<String, int> cart;
+  final Function(String, int) onUpdateQuantity;
+  final VoidCallback onClearCart;
+
+  const CartScreen({
+    super.key,
+    required this.cart,
+    required this.onUpdateQuantity,
+    required this.onClearCart,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    int total = 0;
+    cart.forEach((id, qty) {
+      final p = kProducts.firstWhere((prod) => prod.id == id);
+      total += p.price * qty;
+    });
+
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('Cart'),
+        actions: [
+          IconButton(icon: const Icon(Icons.delete_outline), onPressed: onClearCart),
+        ],
+      ),
+      body: cart.isEmpty
+          ? const Center(child: Text('Your Cart is Empty'))
+          : Column(
+              children: [
+                Expanded(
+                  child: ListView(
+                    padding: const EdgeInsets.all(12),
+                    children: cart.entries.map((entry) {
+                      final p = kProducts.firstWhere((prod) => prod.id == entry.key);
+                      final subtotal = p.price * entry.value;
+
+                      return Container(
+                        margin: const EdgeInsets.only(bottom: 10),
+                        padding: const EdgeInsets.all(12),
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(10),
+                          border: Border.all(color: AppColors.border),
+                        ),
+                        child: Row(
+                          children: [
+                            PaperReamWidget(brand: p.brand, primaryColor: p.brandColor, width: 55, height: 65),
+                            const SizedBox(width: 12),
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(p.title, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
+                                  Text('₹${p.price} / Ream', style: const TextStyle(color: AppColors.textMuted, fontSize: 11)),
+                                  const SizedBox(height: 6),
+                                  Row(
+                                    children: [
+                                      _QtyBtn(icon: Icons.remove, onTap: () => onUpdateQuantity(p.id, -1)),
+                                      Padding(
+                                        padding: const EdgeInsets.symmetric(horizontal: 10),
+                                        child: Text('${entry.value}', style: const TextStyle(fontWeight: FontWeight.bold)),
+                                      ),
+                                      _QtyBtn(icon: Icons.add, onTap: () => onUpdateQuantity(p.id, 1)),
+                                    ],
+                                  ),
+                                ],
+                              ),
+                            ),
+                            Text('₹$subtotal', style: const TextStyle(fontWeight: FontWeight.w900, fontSize: 16)),
+                          ],
+                        ),
+                      );
+                    }).toList(),
+                  ),
+                ),
+                Container(
+                  padding: const EdgeInsets.all(16),
+                  color: Colors.white,
+                  child: SafeArea(
+                    child: Column(
+                      children: [
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            const Text('Total Amount', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
+                            Text('₹$total', style: const TextStyle(fontSize: 20, fontWeight: FontWeight.w900, color: AppColors.textDark)),
+                          ],
+                        ),
+                        const SizedBox(height: 12),
+                        ElevatedButton(
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: AppColors.primary,
+                            minimumSize: const Size(double.infinity, 48),
+                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                          ),
+                          onPressed: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(builder: (_) => CustomerDetailsScreen(totalAmount: total, cart: cart)),
+                            );
+                          },
+                          child: const Text('Proceed to Order', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 15)),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ],
+            ),
+    );
+  }
+}
+
+class _QtyBtn extends StatelessWidget {
+  final IconData icon;
+  final VoidCallback onTap;
+  const _QtyBtn({required this.icon, required this.onTap});
+
+  @override
+  Widget build(BuildContext context) {
+    return InkWell(
+      onTap: onTap,
+      child: Container(
+        padding: const EdgeInsets.all(4),
+        decoration: BoxDecoration(
+          color: AppColors.primaryLight,
+          borderRadius: BorderRadius.circular(4),
+        ),
+        child: Icon(icon, size: 14, color: AppColors.primary),
+      ),
+    );
+  }
+}
+
+// ---------------------------------------------------------------------------
+// 6. Customer Details Screen
+// ---------------------------------------------------------------------------
+class CustomerDetailsScreen extends StatefulWidget {
+  final int totalAmount;
+  final Map<String, int> cart;
+  const CustomerDetailsScreen({super.key, required this.totalAmount, required this.cart});
+
+  @override
+  State<CustomerDetailsScreen> createState() => _CustomerDetailsScreenState();
+}
+
+class _CustomerDetailsScreenState extends State<CustomerDetailsScreen> {
+  final _nameCtrl = TextEditingController(text: 'Aslam Sayyad');
+  final _phoneCtrl = TextEditingController(text: '9876543210');
+  final _addressCtrl = TextEditingController(text: 'Samta Colony');
+  final _cityCtrl = TextEditingController(text: 'Majalgaon, Dist. Beed');
+  final _pinCtrl = TextEditingController(text: '431131');
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(title: const Text('Customer Details')),
+      body: SingleChildScrollView(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            _InputBox(label: 'Full Name *', hint: 'Enter your name', controller: _nameCtrl, icon: Icons.person_outline),
+            _InputBox(label: 'Mobile Number *', hint: 'Enter 10 digit mobile number', controller: _phoneCtrl, icon: Icons.phone_android),
+            _InputBox(label: 'Address *', hint: 'House No., Area, Landmark', controller: _addressCtrl, icon: Icons.location_on_outlined),
+            _InputBox(label: 'City *', hint: 'Enter city', controller: _cityCtrl, icon: Icons.apartment),
+            _InputBox(label: 'Pincode *', hint: 'Enter pincode', controller: _pinCtrl, icon: Icons.pin_drop_outlined),
+            const SizedBox(height: 10),
+            const Text('Payment Method', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13)),
+            const SizedBox(height: 8),
+            Container(
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(8),
+                border: Border.all(color: AppColors.primary),
+              ),
+              child: const Row(
+                children: [
+                  Icon(Icons.radio_button_checked, color: AppColors.primary, size: 20),
+                  SizedBox(width: 10),
+                  Icon(Icons.payments_outlined, color: AppColors.green),
+                  SizedBox(width: 8),
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text('Cash on Delivery (COD)', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13)),
+                      Text('Pay when you receive the product', style: TextStyle(fontSize: 11, color: AppColors.textMuted)),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(height: 24),
+            ElevatedButton(
+              style: ElevatedButton.styleFrom(
+                backgroundColor: AppColors.primary,
+                minimumSize: const Size(double.infinity, 48),
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+              ),
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (_) => OrderSummaryScreen(
+                      name: _nameCtrl.text,
+                      phone: _phoneCtrl.text,
+                      address: '${_addressCtrl.text}, ${_cityCtrl.text}',
+                      totalAmount: widget.totalAmount,
+                      cart: widget.cart,
+                    ),
+                  ),
+                );
+              },
+              child: const Text('Proceed to WhatsApp', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 15)),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _InputBox extends StatelessWidget {
+  final String label;
+  final String hint;
+  final TextEditingController controller;
+  final IconData icon;
+
+  const _InputBox({required this.label, required this.hint, required this.controller, required this.icon});
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 12),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Icon(icon, size: 16, color: AppColors.textMuted),
+              const SizedBox(width: 4),
+              Text(label, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 12)),
+            ],
+          ),
+          const SizedBox(height: 6),
+          TextField(
+            controller: controller,
+            style: const TextStyle(fontSize: 13),
+            decoration: InputDecoration(
+              filled: true,
+              fillColor: Colors.white,
+              hintText: hint,
+              hintStyle: const TextStyle(color: AppColors.textMuted, fontSize: 13),
+              contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+              border: OutlineInputBorder(borderRadius: BorderRadius.circular(8), borderSide: const BorderSide(color: AppColors.border)),
+              enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(8), borderSide: const BorderSide(color: AppColors.border)),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+// ---------------------------------------------------------------------------
+// 7. Order Summary (WhatsApp Share Screen)
+// ---------------------------------------------------------------------------
+class OrderSummaryScreen extends StatelessWidget {
+  final String name;
+  final String phone;
+  final String address;
+  final int totalAmount;
+  final Map<String, int> cart;
+
+  const OrderSummaryScreen({
+    super.key,
+    required this.name,
+    required this.phone,
+    required this.address,
+    required this.totalAmount,
+    required this.cart,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(title: const Text('Order Summary')),
+      body: SingleChildScrollView(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          children: [
+            Container(
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                color: const Color(0xFFE8F8EE),
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: const Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(Icons.chat, color: AppColors.whatsapp),
+                  SizedBox(width: 8),
+                  Text('Send Order on WhatsApp', style: TextStyle(fontWeight: FontWeight.bold, color: AppColors.whatsapp, fontSize: 14)),
+                ],
+              ),
+            ),
+            const SizedBox(height: 16),
+            Container(
+              padding: const EdgeInsets.all(16),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(10),
+                border: Border.all(color: AppColors.border),
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Text('Paper Hub Order', style: TextStyle(fontWeight: FontWeight.w900, fontSize: 15)),
+                  const Divider(),
+                  ...cart.entries.map((entry) {
+                    final p = kProducts.firstWhere((prod) => prod.id == entry.key);
+                    return Padding(
+                      padding: const EdgeInsets.symmetric(vertical: 4),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text('${p.title} 70 GSM × ${entry.value}', style: const TextStyle(fontSize: 13)),
+                          Text('₹${p.price * entry.value}', style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13)),
+                        ],
+                      ),
+                    );
+                  }),
+                  const Divider(),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      const Text('Total Amount:', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
+                      Text('₹$totalAmount', style: const TextStyle(fontWeight: FontWeight.w900, fontSize: 16, color: AppColors.primary)),
+                    ],
+                  ),
+                  const SizedBox(height: 14),
+                  Text('Customer Name: $name', style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w600)),
+                  Text('Mobile: $phone', style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w600)),
+                  Text('Address: $address', style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w600)),
+                  const Text('Payment: Cash on Delivery (COD)', style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w600)),
+                  const SizedBox(height: 12),
+                  const Text('Thank you!\nPaper Hub', style: TextStyle(fontSize: 11, color: AppColors.textMuted)),
+                ],
+              ),
+            ),
+            const SizedBox(height: 24),
+            ElevatedButton.icon(
+              style: ElevatedButton.styleFrom(
+                backgroundColor: AppColors.whatsapp,
+                minimumSize: const Size(double.infinity, 48),
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+              ),
+              icon: const Icon(Icons.chat, color: Colors.white),
+              label: const Text('Open WhatsApp', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 15)),
+              onPressed: () {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text('Redirecting to WhatsApp with Order details...')),
+                );
+              },
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+// ---------------------------------------------------------------------------
+// 8. Orders & Contact Screen
 // ---------------------------------------------------------------------------
 class OrdersScreen extends StatelessWidget {
   const OrdersScreen({super.key});
@@ -927,49 +1193,228 @@ class OrdersScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('My Orders'), backgroundColor: Colors.white),
-      body: const Center(
-        child: Text('All confirmed orders will show here', style: TextStyle(color: AppColors.textSecondary)),
+      appBar: AppBar(title: const Text('My Orders')),
+      body: ListView(
+        padding: const EdgeInsets.all(16),
+        children: [
+          Row(
+            children: [
+              _FilterButton(title: 'All', isSelected: true),
+              const SizedBox(width: 8),
+              _FilterButton(title: 'Pending', isSelected: false),
+              const SizedBox(width: 8),
+              _FilterButton(title: 'Delivered', isSelected: false),
+            ],
+          ),
+          const SizedBox(height: 16),
+          _OrderHistoryCard(id: '#PH001', date: '12 Sep 2025', amount: 850, status: 'Pending', statusColor: AppColors.orange),
+          _OrderHistoryCard(id: '#PH002', date: '10 Sep 2025', amount: 630, status: 'Delivered', statusColor: AppColors.green),
+          _OrderHistoryCard(id: '#PH003', date: '05 Sep 2025', amount: 420, status: 'Delivered', statusColor: AppColors.green),
+        ],
+      ),
+    );
+  }
+}
+
+class _FilterButton extends StatelessWidget {
+  final String title;
+  final bool isSelected;
+  const _FilterButton({required this.title, required this.isSelected});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
+      decoration: BoxDecoration(
+        color: isSelected ? AppColors.primary : Colors.white,
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: isSelected ? AppColors.primary : AppColors.border),
+      ),
+      child: Text(
+        title,
+        style: TextStyle(color: isSelected ? Colors.white : AppColors.textDark, fontWeight: FontWeight.bold, fontSize: 12),
+      ),
+    );
+  }
+}
+
+class _OrderHistoryCard extends StatelessWidget {
+  final String id;
+  final String date;
+  final int amount;
+  final String status;
+  final Color statusColor;
+
+  const _OrderHistoryCard({
+    required this.id,
+    required this.date,
+    required this.amount,
+    required this.status,
+    required this.statusColor,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      margin: const EdgeInsets.only(bottom: 12),
+      padding: const EdgeInsets.all(14),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(10),
+        border: Border.all(color: AppColors.border),
+      ),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(id, style: const TextStyle(fontWeight: FontWeight.w900, fontSize: 14)),
+              const SizedBox(height: 2),
+              Text(date, style: const TextStyle(color: AppColors.textMuted, fontSize: 11)),
+              const SizedBox(height: 4),
+              Text('Total: ₹$amount', style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13)),
+            ],
+          ),
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+            decoration: BoxDecoration(
+              color: statusColor.withOpacity(0.12),
+              borderRadius: BorderRadius.circular(12),
+            ),
+            child: Text(
+              status,
+              style: TextStyle(color: statusColor, fontWeight: FontWeight.bold, fontSize: 11),
+            ),
+          ),
+        ],
       ),
     );
   }
 }
 
 // ---------------------------------------------------------------------------
-// Screen 6: Account & Support
+// 9. Contact Us Screen
 // ---------------------------------------------------------------------------
-class AccountScreen extends StatelessWidget {
-  const AccountScreen({super.key});
+class ContactScreen extends StatelessWidget {
+  const ContactScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('My Account'), backgroundColor: Colors.white),
-      body: ListView(
+      appBar: AppBar(title: const Text('Contact Us')),
+      body: SingleChildScrollView(
         padding: const EdgeInsets.all(16),
-        children: [
-          Container(
-            padding: const EdgeInsets.all(16),
-            decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(8)),
-            child: const Row(
+        child: Column(
+          children: [
+            Row(
               children: [
-                CircleAvatar(backgroundColor: AppColors.primary, child: Icon(Icons.person, color: Colors.white)),
-                SizedBox(width: 14),
-                Text('Paper Hub Wholesale Buyer', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15)),
+                Expanded(
+                  child: _ContactActionCard(
+                    icon: Icons.chat,
+                    color: AppColors.whatsapp,
+                    title: 'WhatsApp',
+                    subtitle: '+91 98765 43210',
+                    action: 'Chat with us',
+                  ),
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: _ContactActionCard(
+                    icon: Icons.call,
+                    color: AppColors.primary,
+                    title: 'Call',
+                    subtitle: '+91 98765 43210',
+                    action: 'Tap to call',
+                  ),
+                ),
               ],
             ),
-          ),
-          const SizedBox(height: 14),
-          ListTile(
-            tileColor: Colors.white,
-            leading: const Icon(Icons.support_agent, color: AppColors.primary),
-            title: const Text('Direct Help & Support'),
-            trailing: const Icon(Icons.chevron_right),
-            onTap: () async {
-              final uri = Uri.parse('https://wa.me/917038343215');
-              await launchUrl(uri, mode: LaunchMode.externalApplication);
-            },
-          ),
+            const SizedBox(height: 16),
+            Container(
+              padding: const EdgeInsets.all(14),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(10),
+                border: Border.all(color: AppColors.border),
+              ),
+              child: const Row(
+                children: [
+                  Icon(Icons.location_on, color: Colors.red, size: 28),
+                  SizedBox(width: 12),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text('Our Address', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13)),
+                        Text('Majalgaon, Dist. Beed', style: TextStyle(color: AppColors.textMuted, fontSize: 12)),
+                        Text('Maharashtra, India', style: TextStyle(color: AppColors.textMuted, fontSize: 11)),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(height: 24),
+            Container(
+              padding: const EdgeInsets.all(20),
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  colors: [AppColors.primaryLight, Colors.white],
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                ),
+                borderRadius: BorderRadius.circular(12),
+                border: Border.all(color: AppColors.border),
+              ),
+              child: const Center(
+                child: Text(
+                  "Let's Keep\nYour Business\nAlways Ahead",
+                  textAlign: TextAlign.center,
+                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.w900, color: AppColors.primary, height: 1.3),
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _ContactActionCard extends StatelessWidget {
+  final IconData icon;
+  final Color color;
+  final String title;
+  final String subtitle;
+  final String action;
+
+  const _ContactActionCard({
+    required this.icon,
+    required this.color,
+    required this.title,
+    required this.subtitle,
+    required this.action,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(10),
+        border: Border.all(color: AppColors.border),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          CircleAvatar(backgroundColor: color.withOpacity(0.15), radius: 18, child: Icon(icon, color: color, size: 20)),
+          const SizedBox(height: 8),
+          Text(title, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13)),
+          Text(subtitle, style: const TextStyle(fontSize: 10, color: AppColors.textMuted)),
+          const SizedBox(height: 4),
+          Text(action, style: TextStyle(fontSize: 10, color: color, fontWeight: FontWeight.bold)),
         ],
       ),
     );
