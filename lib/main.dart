@@ -5,41 +5,106 @@ void main() {
   runApp(const PaperHubApp());
 }
 
+// ---------------------------------------------------------------------------
+// Design System & Constants
+// ---------------------------------------------------------------------------
+class AppColors {
+  static const Color primary = Color(0xFF1E3A8A); // Deep Executive Navy
+  static const Color primaryLight = Color(0xFF3B82F6);
+  static const Color accent = Color(0xFF0D9488); // Forest Teal
+  static const Color surface = Color(0xFFFFFFFF);
+  static const Color background = Color(0xFFF8FAFC); // Slate tint
+  static const Color border = Color(0xFFE2E8F0);
+  static const Color textPrimary = Color(0xFF0F172A);
+  static const Color textSecondary = Color(0xFF64748B);
+  static const Color success = Color(0xFF16A34A);
+  static const Color danger = Color(0xFFEF4444);
+}
+
+// ---------------------------------------------------------------------------
+// Models
+// ---------------------------------------------------------------------------
 class Product {
+  final String id;
   final String name;
   final String brand;
   final int price;
-  final IconData icon;
+  final int gsm;
+  final int sheetsPerReam;
+  final double rating;
+  final int reviewCount;
+  final String badge;
 
   const Product({
+    required this.id,
     required this.name,
     required this.brand,
     required this.price,
-    required this.icon,
+    required this.gsm,
+    required this.sheetsPerReam,
+    required this.rating,
+    required this.reviewCount,
+    required this.badge,
   });
 }
 
-const List<Product> products = [
-  Product(
-    name: 'B2B A4 Copier Paper',
+class CartItem {
+  final Product product;
+  int quantity;
+
+  CartItem({required this.product, this.quantity = 1});
+}
+
+final List<Product> kProducts = [
+  const Product(
+    id: 'b2b-75',
+    name: 'B2B Copier High-Speed A4',
     brand: 'B2B',
     price: 210,
-    icon: Icons.description_rounded,
+    gsm: 75,
+    sheetsPerReam: 500,
+    rating: 4.8,
+    reviewCount: 340,
+    badge: 'Best Seller',
   ),
-  Product(
-    name: 'JK A4 Copier Paper',
-    brand: 'JK',
-    price: 230,
-    icon: Icons.article_rounded,
+  const Product(
+    id: 'jk-easy-70',
+    name: 'JK Copier Premium Multipurpose',
+    brand: 'JK Paper',
+    price: 235,
+    gsm: 75,
+    sheetsPerReam: 500,
+    rating: 4.9,
+    reviewCount: 820,
+    badge: 'Popular',
   ),
-  Product(
-    name: 'TNPL A4 Copier Paper',
+  const Product(
+    id: 'tnpl-ultra-80',
+    name: 'TNPL Ultra White Copier Sheet',
     brand: 'TNPL',
-    price: 200,
-    icon: Icons.note_alt_rounded,
+    price: 198,
+    gsm: 70,
+    sheetsPerReam: 500,
+    rating: 4.7,
+    reviewCount: 195,
+    badge: 'Value Pack',
+  ),
+  const Product(
+    id: 'jk-cedar-80',
+    name: 'JK Cedar Super Bright Bond Paper',
+    brand: 'JK Paper',
+    price: 275,
+    gsm: 80,
+    sheetsPerReam: 500,
+    rating: 4.9,
+    reviewCount: 140,
+    badge: 'Executive',
   ),
 ];
 
+// ---------------------------------------------------------------------------
+// Main App Entry
+// ---------------------------------------------------------------------------
 class PaperHubApp extends StatelessWidget {
   const PaperHubApp({super.key});
 
@@ -47,752 +112,693 @@ class PaperHubApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-      title: 'Paper Hub',
+      title: 'Paper Hub Pro',
       theme: ThemeData(
         useMaterial3: true,
+        scaffoldBackgroundColor: AppColors.background,
         colorScheme: ColorScheme.fromSeed(
-          seedColor: const Color(0xFF155EEF),
+          seedColor: AppColors.primary,
+          primary: AppColors.primary,
+          surface: AppColors.surface,
         ),
-        scaffoldBackgroundColor: const Color(0xFFF6F8FC),
-        fontFamily: 'Roboto',
+        fontFamily: 'Inter',
+        appBarTheme: const AppBarTheme(
+          elevation: 0,
+          backgroundColor: AppColors.surface,
+          foregroundColor: AppColors.textPrimary,
+          centerTitle: false,
+        ),
       ),
-      home: const MainScreen(),
+      home: const MainShell(),
     );
   }
 }
 
-class MainScreen extends StatefulWidget {
-  const MainScreen({super.key});
+// ---------------------------------------------------------------------------
+// Main Shell (State holder for Cart)
+// ---------------------------------------------------------------------------
+class MainShell extends StatefulWidget {
+  const MainShell({super.key});
 
   @override
-  State<MainScreen> createState() => _MainScreenState();
+  State<MainShell> createState() => _MainShellState();
 }
 
-class _MainScreenState extends State<MainScreen> {
-  int selectedIndex = 0;
+class _MainShellState extends State<MainShell> {
+  int _currentIndex = 0;
+  final Map<String, CartItem> _cart = {};
 
-  final List<Product> cart = [];
-
-  void addToCart(Product product) {
+  void _addToCart(Product product) {
     setState(() {
-      cart.add(product);
+      if (_cart.containsKey(product.id)) {
+        _cart[product.id]!.quantity += 1;
+      } else {
+        _cart[product.id] = CartItem(product: product);
+      }
     });
 
+    ScaffoldMessenger.of(context).clearSnackBars();
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
-        content: Text('${product.brand} paper added to cart'),
+        content: Text('${product.brand} ream added to cart'),
         behavior: SnackBarBehavior.floating,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+        backgroundColor: AppColors.textPrimary,
+        duration: const Duration(seconds: 2),
       ),
     );
   }
 
-  void removeFromCart(Product product) {
+  void _updateQuantity(String productId, int delta) {
     setState(() {
-      cart.remove(product);
+      if (!_cart.containsKey(productId)) return;
+      _cart[productId]!.quantity += delta;
+      if (_cart[productId]!.quantity <= 0) {
+        _cart.remove(productId);
+      }
     });
   }
+
+  int get _cartItemCount =>
+      _cart.values.fold(0, (sum, item) => sum + item.quantity);
 
   @override
   Widget build(BuildContext context) {
-    final pages = [
-      HomeTab(
-        cart: cart,
-        onAdd: addToCart,
+    final screens = [
+      HomeScreen(onAddProduct: _addToCart),
+      CatalogScreen(onAddProduct: _addToCart),
+      CartScreen(
+        cartItems: _cart.values.toList(),
+        onUpdateQuantity: _updateQuantity,
       ),
-      CategoriesTab(
-        onAdd: addToCart,
-      ),
-      CartTab(
-        cart: cart,
-        onAdd: addToCart,
-        onRemove: removeFromCart,
-      ),
-      const OrdersTab(),
-      const ProfileTab(),
+      const OrdersScreen(),
+      const ProfileScreen(),
     ];
 
     return Scaffold(
       body: IndexedStack(
-        index: selectedIndex,
-        children: pages,
+        index: _currentIndex,
+        children: screens,
       ),
-      bottomNavigationBar: NavigationBar(
-        selectedIndex: selectedIndex,
-        onDestinationSelected: (index) {
-          setState(() {
-            selectedIndex = index;
-          });
-        },
-        destinations: [
-          const NavigationDestination(
-            icon: Icon(Icons.home_outlined),
-            selectedIcon: Icon(Icons.home),
-            label: 'Home',
-          ),
-          const NavigationDestination(
-            icon: Icon(Icons.category_outlined),
-            selectedIcon: Icon(Icons.category),
-            label: 'Brands',
-          ),
-          NavigationDestination(
-            icon: Badge(
-              isLabelVisible: cart.isNotEmpty,
-              label: Text(cart.length.toString()),
-              child: const Icon(Icons.shopping_cart_outlined),
+      bottomNavigationBar: Container(
+        decoration: const BoxDecoration(
+          border: Border(top: BorderSide(color: AppColors.border, width: 1)),
+        ),
+        child: NavigationBar(
+          elevation: 0,
+          backgroundColor: AppColors.surface,
+          indicatorColor: AppColors.primary.withValues(alpha: 0.1),
+          selectedIndex: _currentIndex,
+          onDestinationSelected: (index) => setState(() => _currentIndex = index),
+          destinations: [
+            const NavigationDestination(
+              icon: Icon(Icons.dashboard_outlined),
+              selectedIcon: Icon(Icons.dashboard, color: AppColors.primary),
+              label: 'Explore',
             ),
-            selectedIcon: Badge(
-              isLabelVisible: cart.isNotEmpty,
-              label: Text(cart.length.toString()),
-              child: const Icon(Icons.shopping_cart),
+            const NavigationDestination(
+              icon: Icon(Icons.tune_outlined),
+              selectedIcon: Icon(Icons.tune, color: AppColors.primary),
+              label: 'Catalog',
             ),
-            label: 'Cart',
-          ),
-          const NavigationDestination(
-            icon: Icon(Icons.receipt_long_outlined),
-            selectedIcon: Icon(Icons.receipt_long),
-            label: 'Orders',
-          ),
-          const NavigationDestination(
-            icon: Icon(Icons.person_outline),
-            selectedIcon: Icon(Icons.person),
-            label: 'Profile',
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class HomeTab extends StatelessWidget {
-  final List<Product> cart;
-  final Function(Product) onAdd;
-
-  const HomeTab({
-    super.key,
-    required this.cart,
-    required this.onAdd,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return SafeArea(
-      child: CustomScrollView(
-        slivers: [
-          SliverPadding(
-            padding: const EdgeInsets.fromLTRB(20, 20, 20, 10),
-            sliver: SliverToBoxAdapter(
-              child: Row(
-                children: [
-                  Container(
-                    height: 48,
-                    width: 48,
-                    decoration: BoxDecoration(
-                      color: const Color(0xFF155EEF),
-                      borderRadius: BorderRadius.circular(14),
-                    ),
-                    child: const Icon(
-                      Icons.local_print_shop_rounded,
-                      color: Colors.white,
-                      size: 28,
-                    ),
-                  ),
-                  const SizedBox(width: 12),
-                  const Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          'Paper Hub',
-                          style: TextStyle(
-                            fontSize: 23,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                        Text(
-                          'Quality paper at best prices',
-                          style: TextStyle(
-                            color: Colors.grey,
-                            fontSize: 13,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                  IconButton(
-                    onPressed: () {},
-                    icon: const Icon(Icons.notifications_none_rounded),
-                  ),
-                ],
+            NavigationDestination(
+              icon: Badge(
+                isLabelVisible: _cartItemCount > 0,
+                label: Text('$_cartItemCount'),
+                backgroundColor: AppColors.primary,
+                child: const Icon(Icons.shopping_bag_outlined),
               ),
-            ),
-          ),
-
-          SliverPadding(
-            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
-            sliver: SliverToBoxAdapter(
-              child: TextField(
-                decoration: InputDecoration(
-                  hintText: 'Search paper or brand...',
-                  prefixIcon: const Icon(Icons.search),
-                  filled: true,
-                  fillColor: Colors.white,
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(16),
-                    borderSide: BorderSide.none,
-                  ),
-                ),
+              selectedIcon: Badge(
+                isLabelVisible: _cartItemCount > 0,
+                label: Text('$_cartItemCount'),
+                backgroundColor: AppColors.primary,
+                child: const Icon(Icons.shopping_bag, color: AppColors.primary),
               ),
+              label: 'Cart',
             ),
-          ),
-
-          SliverPadding(
-            padding: const EdgeInsets.all(20),
-            sliver: SliverToBoxAdapter(
-              child: Container(
-                padding: const EdgeInsets.all(22),
-                decoration: BoxDecoration(
-                  gradient: const LinearGradient(
-                    colors: [
-                      Color(0xFF155EEF),
-                      Color(0xFF4F7CFF),
-                    ],
-                  ),
-                  borderRadius: BorderRadius.circular(24),
-                ),
-                child: Row(
-                  children: [
-                    const Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            'Premium A4 Paper',
-                            style: TextStyle(
-                              color: Colors.white,
-                              fontSize: 22,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                          SizedBox(height: 8),
-                          Text(
-                            'B2B • JK • TNPL',
-                            style: TextStyle(
-                              color: Colors.white70,
-                              fontSize: 15,
-                            ),
-                          ),
-                          SizedBox(height: 14),
-                          Text(
-                            'Cash on Delivery Available',
-                            style: TextStyle(
-                              color: Colors.white,
-                              fontWeight: FontWeight.w600,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                    const Icon(
-                      Icons.inventory_2_rounded,
-                      color: Colors.white,
-                      size: 72,
-                    ),
-                  ],
-                ),
-              ),
+            const NavigationDestination(
+              icon: Icon(Icons.local_shipping_outlined),
+              selectedIcon: Icon(Icons.local_shipping, color: AppColors.primary),
+              label: 'Orders',
             ),
-          ),
-
-          SliverPadding(
-            padding: const EdgeInsets.symmetric(horizontal: 20),
-            sliver: SliverToBoxAdapter(
-              child: Row(
-                children: [
-                  Expanded(
-                    child: _FeatureBox(
-                      icon: Icons.local_shipping_outlined,
-                      title: 'Fast Delivery',
-                    ),
-                  ),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    child: _FeatureBox(
-                      icon: Icons.verified_outlined,
-                      title: 'Quality Paper',
-                    ),
-                  ),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    child: _FeatureBox(
-                      icon: Icons.payments_outlined,
-                      title: 'COD',
-                    ),
-                  ),
-                ],
-              ),
+            const NavigationDestination(
+              icon: Icon(Icons.business_center_outlined),
+              selectedIcon: Icon(Icons.business_center, color: AppColors.primary),
+              label: 'Account',
             ),
-          ),
-
-          SliverPadding(
-            padding: const EdgeInsets.fromLTRB(20, 28, 20, 14),
-            sliver: SliverToBoxAdapter(
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  const Text(
-                    'Popular Brands',
-                    style: TextStyle(
-                      fontSize: 20,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                  TextButton(
-                    onPressed: () {},
-                    child: const Text('View All'),
-                  ),
-                ],
-              ),
-            ),
-          ),
-
-          SliverPadding(
-            padding: const EdgeInsets.symmetric(horizontal: 20),
-            sliver: SliverToBoxAdapter(
-              child: Row(
-                children: const [
-                  Expanded(
-                    child: BrandCard(
-                      brand: 'B2B',
-                      color: Color(0xFF155EEF),
-                    ),
-                  ),
-                  SizedBox(width: 12),
-                  Expanded(
-                    child: BrandCard(
-                      brand: 'JK',
-                      color: Color(0xFF00875A),
-                    ),
-                  ),
-                  SizedBox(width: 12),
-                  Expanded(
-                    child: BrandCard(
-                      brand: 'TNPL',
-                      color: Color(0xFFE67E22),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ),
-
-          SliverPadding(
-            padding: const EdgeInsets.fromLTRB(20, 28, 20, 14),
-            sliver: SliverToBoxAdapter(
-              child: const Text(
-                'Featured Products',
-                style: TextStyle(
-                  fontSize: 20,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-            ),
-          ),
-
-          SliverPadding(
-            padding: const EdgeInsets.symmetric(horizontal: 20),
-            sliver: SliverGrid(
-              delegate: SliverChildBuilderDelegate(
-                (context, index) {
-                  final product = products[index];
-
-                  return ProductCard(
-                    product: product,
-                    onAdd: () => onAdd(product),
-                  );
-                },
-                childCount: products.length,
-              ),
-              gridDelegate:
-                  const SliverGridDelegateWithFixedCrossAxisCount(
-                crossAxisCount: 2,
-                crossAxisSpacing: 14,
-                mainAxisSpacing: 14,
-                childAspectRatio: 0.72,
-              ),
-            ),
-          ),
-
-          const SliverPadding(
-            padding: EdgeInsets.only(bottom: 30),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
 }
 
-class _FeatureBox extends StatelessWidget {
-  final IconData icon;
-  final String title;
+// ---------------------------------------------------------------------------
+// Screen 1: Home Dashboard
+// ---------------------------------------------------------------------------
+class HomeScreen extends StatelessWidget {
+  final ValueChanged<Product> onAddProduct;
 
-  const _FeatureBox({
-    required this.icon,
-    required this.title,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.symmetric(
-        horizontal: 8,
-        vertical: 14,
-      ),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
-      ),
-      child: Column(
-        children: [
-          Icon(
-            icon,
-            color: const Color(0xFF155EEF),
-            size: 25,
-          ),
-          const SizedBox(height: 8),
-          Text(
-            title,
-            textAlign: TextAlign.center,
-            style: const TextStyle(
-              fontSize: 11,
-              fontWeight: FontWeight.w600,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class BrandCard extends StatelessWidget {
-  final String brand;
-  final Color color;
-
-  const BrandCard({
-    super.key,
-    required this.brand,
-    required this.color,
-  });
+  const HomeScreen({super.key, required this.onAddProduct});
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      height: 90,
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(18),
-      ),
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Text(
-            brand,
-            style: TextStyle(
-              color: color,
-              fontSize: 23,
-              fontWeight: FontWeight.bold,
-            ),
-          ),
-          const SizedBox(height: 4),
-          const Text(
-            'A4 Paper',
-            style: TextStyle(
-              color: Colors.grey,
-              fontSize: 11,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class ProductCard extends StatelessWidget {
-  final Product product;
-  final VoidCallback onAdd;
-
-  const ProductCard({
-    super.key,
-    required this.product,
-    required this.onAdd,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(20),
-      ),
-      padding: const EdgeInsets.all(14),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Expanded(
-            child: Container(
-              width: double.infinity,
+    return Scaffold(
+      appBar: AppBar(
+        titleSpacing: 20,
+        title: Row(
+          children: [
+            Container(
+              padding: const EdgeInsets.all(8),
               decoration: BoxDecoration(
-                color: const Color(0xFFF0F4FF),
-                borderRadius: BorderRadius.circular(16),
+                color: AppColors.primary,
+                borderRadius: BorderRadius.circular(10),
               ),
-              child: Icon(
-                product.icon,
-                size: 72,
-                color: const Color(0xFF155EEF),
+              child: const Icon(Icons.layers_rounded, color: Colors.white, size: 20),
+            ),
+            const SizedBox(width: 12),
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: const [
+                Text(
+                  'Paper Hub',
+                  style: TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.w700,
+                    letterSpacing: -0.5,
+                  ),
+                ),
+                Text(
+                  'B2B Wholesale & Supply',
+                  style: TextStyle(
+                    fontSize: 12,
+                    color: AppColors.textSecondary,
+                    fontWeight: FontWeight.w400,
+                  ),
+                ),
+              ],
+            ),
+          ],
+        ),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.notifications_none_rounded),
+            onPressed: () {},
+          ),
+          const SizedBox(width: 8),
+        ],
+      ),
+      body: ListView(
+        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+        children: [
+          // Search & Filter Bar
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 14),
+            decoration: BoxDecoration(
+              color: AppColors.surface,
+              borderRadius: BorderRadius.circular(12),
+              border: Border.all(color: AppColors.border),
+            ),
+            child: Row(
+              children: [
+                const Icon(Icons.search_rounded, color: AppColors.textSecondary),
+                const SizedBox(width: 10),
+                Expanded(
+                  child: TextField(
+                    decoration: const InputDecoration(
+                      hintText: 'Search 70 GSM, 75 GSM, or brands...',
+                      hintStyle: TextStyle(
+                        color: AppColors.textSecondary,
+                        fontSize: 14,
+                      ),
+                      border: InputBorder.none,
+                    ),
+                  ),
+                ),
+                Container(
+                  height: 24,
+                  width: 1,
+                  color: AppColors.border,
+                  margin: const EdgeInsets.symmetric(horizontal: 8),
+                ),
+                IconButton(
+                  icon: const Icon(Icons.filter_list_rounded, size: 20),
+                  color: AppColors.primary,
+                  onPressed: () {},
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(height: 18),
+
+          // Business Value Banner
+          Container(
+            padding: const EdgeInsets.all(20),
+            decoration: BoxDecoration(
+              gradient: const LinearGradient(
+                colors: [Color(0xFF0F172A), Color(0xFF1E3A8A)],
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
               ),
+              borderRadius: BorderRadius.circular(16),
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                  decoration: BoxDecoration(
+                    color: Colors.white.withValues(alpha: 0.15),
+                    borderRadius: BorderRadius.circular(6),
+                  ),
+                  child: const Text(
+                    'WHOLESALE DISPATCH',
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 10,
+                      fontWeight: FontWeight.w700,
+                      letterSpacing: 0.8,
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 12),
+                const Text(
+                  'Guaranteed 99.9% Jam-Free Copier Paper',
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 18,
+                    fontWeight: FontWeight.w700,
+                    height: 1.3,
+                  ),
+                ),
+                const SizedBox(height: 8),
+                const Text(
+                  'Bulk tier discounts apply automatically from 20+ reams.',
+                  style: TextStyle(
+                    color: Color(0xFFCBD5E1),
+                    fontSize: 13,
+                  ),
+                ),
+              ],
             ),
           ),
-          const SizedBox(height: 12),
-          Text(
-            product.brand,
-            style: const TextStyle(
-              color: Color(0xFF155EEF),
-              fontSize: 12,
-              fontWeight: FontWeight.bold,
-            ),
-          ),
-          const SizedBox(height: 4),
-          Text(
-            product.name,
-            maxLines: 2,
-            overflow: TextOverflow.ellipsis,
-            style: const TextStyle(
-              fontSize: 14,
-              fontWeight: FontWeight.w600,
-            ),
-          ),
-          const SizedBox(height: 8),
+          const SizedBox(height: 20),
+
+          // Metrics / Assurance Bar
           Row(
-            children: [
-              Text(
-                '₹${product.price}',
-                style: const TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
+            children: const [
+              Expanded(
+                child: _MetricBadge(
+                  icon: Icons.verified_user_outlined,
+                  title: 'Genuine Stock',
+                  subtitle: 'Mill Certified',
                 ),
               ),
-              const Spacer(),
-              InkWell(
-                onTap: onAdd,
-                borderRadius: BorderRadius.circular(12),
-                child: Container(
-                  padding: const EdgeInsets.all(9),
-                  decoration: BoxDecoration(
-                    color: const Color(0xFF155EEF),
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  child: const Icon(
-                    Icons.add_shopping_cart,
-                    color: Colors.white,
-                    size: 19,
-                  ),
+              SizedBox(width: 8),
+              Expanded(
+                child: _MetricBadge(
+                  icon: Icons.local_shipping_outlined,
+                  title: 'Same-Day Dispatch',
+                  subtitle: 'Bulk Ready',
+                ),
+              ),
+              SizedBox(width: 8),
+              Expanded(
+                child: _MetricBadge(
+                  icon: Icons.receipt_long_outlined,
+                  title: 'GST Invoice',
+                  subtitle: 'Tax Input Claim',
                 ),
               ),
             ],
           ),
+          const SizedBox(height: 24),
+
+          // Section Header
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              const Text(
+                'Available Paper Reams',
+                style: TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.w700,
+                  color: AppColors.textPrimary,
+                ),
+              ),
+              TextButton(
+                onPressed: () {},
+                child: const Text('Specifications'),
+              ),
+            ],
+          ),
+          const SizedBox(height: 12),
+
+          // Product List Cards
+          ...kProducts.map((p) => _ProductListItem(product: p, onAdd: () => onAddProduct(p))),
         ],
       ),
     );
   }
 }
 
-class CategoriesTab extends StatelessWidget {
-  final Function(Product) onAdd;
+class _MetricBadge extends StatelessWidget {
+  final IconData icon;
+  final String title;
+  final String subtitle;
 
-  const CategoriesTab({
-    super.key,
-    required this.onAdd,
+  const _MetricBadge({
+    required this.icon,
+    required this.title,
+    required this.subtitle,
   });
 
   @override
   Widget build(BuildContext context) {
-    return SafeArea(
-      child: ListView(
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 12),
+      decoration: BoxDecoration(
+        color: AppColors.surface,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: AppColors.border),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Icon(icon, size: 20, color: AppColors.primary),
+          const SizedBox(height: 8),
+          Text(
+            title,
+            style: const TextStyle(
+              fontSize: 12,
+              fontWeight: FontWeight.w700,
+              color: AppColors.textPrimary,
+            ),
+          ),
+          Text(
+            subtitle,
+            style: const TextStyle(
+              fontSize: 11,
+              color: AppColors.textSecondary,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _ProductListItem extends StatelessWidget {
+  final Product product;
+  final VoidCallback onAdd;
+
+  const _ProductListItem({required this.product, required this.onAdd});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      margin: const EdgeInsets.only(bottom: 12),
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: AppColors.surface,
+        borderRadius: BorderRadius.circular(14),
+        border: Border.all(color: AppColors.border),
+      ),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // Visual Ream Indicator
+          Container(
+            height: 72,
+            width: 72,
+            decoration: BoxDecoration(
+              color: AppColors.background,
+              borderRadius: BorderRadius.circular(10),
+              border: Border.all(color: AppColors.border),
+            ),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                const Icon(Icons.file_copy_rounded, color: AppColors.primary, size: 26),
+                const SizedBox(height: 4),
+                Text(
+                  '${product.gsm} GSM',
+                  style: const TextStyle(
+                    fontSize: 11,
+                    fontWeight: FontWeight.w700,
+                    color: AppColors.textSecondary,
+                  ),
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(width: 14),
+
+          // Details
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                      decoration: BoxDecoration(
+                        color: AppColors.primary.withValues(alpha: 0.08),
+                        borderRadius: BorderRadius.circular(4),
+                      ),
+                      child: Text(
+                        product.brand.toUpperCase(),
+                        style: const TextStyle(
+                          fontSize: 10,
+                          fontWeight: FontWeight.w700,
+                          color: AppColors.primary,
+                        ),
+                      ),
+                    ),
+                    const Spacer(),
+                    Text(
+                      '★ ${product.rating}',
+                      style: const TextStyle(
+                        fontSize: 12,
+                        fontWeight: FontWeight.w600,
+                        color: AppColors.textPrimary,
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 6),
+                Text(
+                  product.name,
+                  style: const TextStyle(
+                    fontSize: 15,
+                    fontWeight: FontWeight.w600,
+                    color: AppColors.textPrimary,
+                  ),
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  '${product.sheetsPerReam} Sheets / Ream • High Brightness',
+                  style: const TextStyle(
+                    fontSize: 12,
+                    color: AppColors.textSecondary,
+                  ),
+                ),
+                const SizedBox(height: 10),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(
+                      '₹${product.price}',
+                      style: const TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.w800,
+                        color: AppColors.textPrimary,
+                      ),
+                    ),
+                    OutlinedButton.icon(
+                      onPressed: onAdd,
+                      icon: const Icon(Icons.add, size: 16),
+                      label: const Text('Add Ream'),
+                      style: OutlinedButton.styleFrom(
+                        foregroundColor: AppColors.primary,
+                        side: const BorderSide(color: AppColors.primary),
+                        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+// ---------------------------------------------------------------------------
+// Screen 2: Catalog Screen
+// ---------------------------------------------------------------------------
+class CatalogScreen extends StatelessWidget {
+  final ValueChanged<Product> onAddProduct;
+
+  const CatalogScreen({super.key, required this.onAddProduct});
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text(
+          'Brand Catalog',
+          style: TextStyle(fontWeight: FontWeight.w700),
+        ),
+      ),
+      body: ListView(
         padding: const EdgeInsets.all(20),
         children: [
           const Text(
-            'Our Brands',
-            style: TextStyle(
-              fontSize: 28,
-              fontWeight: FontWeight.bold,
-            ),
+            'Select by Paper Density',
+            style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: AppColors.textSecondary),
           ),
-          const SizedBox(height: 8),
-          const Text(
-            'Choose your preferred paper brand',
-            style: TextStyle(
-              color: Colors.grey,
-            ),
+          const SizedBox(height: 10),
+          Wrap(
+            spacing: 8,
+            children: [
+              FilterChip(label: const Text('All Grades'), selected: true, onSelected: (_) {}),
+              FilterChip(label: const Text('70 GSM (Economy)'), selected: false, onSelected: (_) {}),
+              FilterChip(label: const Text('75 GSM (Standard)'), selected: false, onSelected: (_) {}),
+              FilterChip(label: const Text('80 GSM (Executive)'), selected: false, onSelected: (_) {}),
+            ],
           ),
-          const SizedBox(height: 24),
-          ...products.map(
-            (product) => Container(
-              margin: const EdgeInsets.only(bottom: 14),
-              padding: const EdgeInsets.all(18),
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(20),
-              ),
-              child: Row(
-                children: [
-                  Container(
-                    height: 60,
-                    width: 60,
-                    decoration: BoxDecoration(
-                      color: const Color(0xFFF0F4FF),
-                      borderRadius: BorderRadius.circular(16),
-                    ),
-                    child: Icon(
-                      product.icon,
-                      color: const Color(0xFF155EEF),
-                      size: 30,
-                    ),
-                  ),
-                  const SizedBox(width: 15),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          product.brand,
-                          style: const TextStyle(
-                            color: Color(0xFF155EEF),
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                        const SizedBox(height: 4),
-                        Text(product.name),
-                        const SizedBox(height: 5),
-                        Text(
-                          '₹${product.price} / ream',
-                          style: const TextStyle(
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                  IconButton(
-                    onPressed: () => onAdd(product),
-                    icon: const Icon(
-                      Icons.add_circle,
-                      color: Color(0xFF155EEF),
-                      size: 32,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ),
+          const SizedBox(height: 20),
+          ...kProducts.map((p) => _ProductListItem(product: p, onAdd: () => onAddProduct(p))),
         ],
       ),
     );
   }
 }
 
-class CartTab extends StatelessWidget {
-  final List<Product> cart;
-  final Function(Product) onAdd;
-  final Function(Product) onRemove;
+// ---------------------------------------------------------------------------
+// Screen 3: Cart Screen with Quantity Controls
+// ---------------------------------------------------------------------------
+class CartScreen extends StatelessWidget {
+  final List<CartItem> cartItems;
+  final Function(String id, int delta) onUpdateQuantity;
 
-  const CartTab({
+  const CartScreen({
     super.key,
-    required this.cart,
-    required this.onAdd,
-    required this.onRemove,
+    required this.cartItems,
+    required this.onUpdateQuantity,
   });
 
   @override
   Widget build(BuildContext context) {
-    if (cart.isEmpty) {
-      return const EmptyCart();
+    if (cartItems.isEmpty) {
+      return Scaffold(
+        appBar: AppBar(
+          title: const Text('Supply Cart', style: TextStyle(fontWeight: FontWeight.w700)),
+        ),
+        body: Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(Icons.shopping_bag_outlined, size: 64, color: AppColors.textSecondary.withValues(alpha: 0.5)),
+              const SizedBox(height: 14),
+              const Text(
+                'Your cart is empty',
+                style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
+              ),
+              const SizedBox(height: 6),
+              const Text(
+                'Add paper reams or boxes to request delivery',
+                style: TextStyle(fontSize: 13, color: AppColors.textSecondary),
+              ),
+            ],
+          ),
+        ),
+      );
     }
 
-    final total = cart.fold<int>(
+    final subtotal = cartItems.fold<int>(
       0,
-      (sum, product) => sum + product.price,
+      (sum, item) => sum + (item.product.price * item.quantity),
+    );
+    final totalReams = cartItems.fold<int>(
+      0,
+      (sum, item) => sum + item.quantity,
     );
 
-    return SafeArea(
-      child: Column(
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('Supply Cart', style: TextStyle(fontWeight: FontWeight.w700)),
+      ),
+      body: Column(
         children: [
-          const Padding(
-            padding: EdgeInsets.all(20),
-            child: Align(
-              alignment: Alignment.centerLeft,
-              child: Text(
-                'My Cart',
-                style: TextStyle(
-                  fontSize: 28,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-            ),
-          ),
           Expanded(
-            child: ListView.builder(
-              padding: const EdgeInsets.symmetric(horizontal: 20),
-              itemCount: cart.length,
+            child: ListView.separated(
+              padding: const EdgeInsets.all(20),
+              itemCount: cartItems.length,
+              separatorBuilder: (_, __) => const SizedBox(height: 12),
               itemBuilder: (context, index) {
-                final product = cart[index];
-
+                final item = cartItems[index];
                 return Container(
-                  margin: const EdgeInsets.only(bottom: 12),
-                  padding: const EdgeInsets.all(15),
+                  padding: const EdgeInsets.all(14),
                   decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(18),
+                    color: AppColors.surface,
+                    borderRadius: BorderRadius.circular(12),
+                    border: Border.all(color: AppColors.border),
                   ),
                   child: Row(
                     children: [
-                      Container(
-                        height: 58,
-                        width: 58,
-                        decoration: BoxDecoration(
-                          color: const Color(0xFFF0F4FF),
-                          borderRadius: BorderRadius.circular(14),
-                        ),
-                        child: Icon(
-                          product.icon,
-                          color: const Color(0xFF155EEF),
-                        ),
-                      ),
-                      const SizedBox(width: 14),
                       Expanded(
                         child: Column(
-                          crossAxisAlignment:
-                              CrossAxisAlignment.start,
+                          crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text(
-                              product.name,
+                              item.product.name,
                               style: const TextStyle(
+                                fontSize: 14,
                                 fontWeight: FontWeight.w600,
                               ),
                             ),
-                            const SizedBox(height: 5),
+                            const SizedBox(height: 4),
                             Text(
-                              '₹${product.price}',
+                              '₹${item.product.price} / ream',
                               style: const TextStyle(
-                                fontWeight: FontWeight.bold,
+                                fontSize: 13,
+                                color: AppColors.textSecondary,
                               ),
                             ),
                           ],
                         ),
                       ),
-                      IconButton(
-                        onPressed: () => onRemove(product),
-                        icon: const Icon(
-                          Icons.delete_outline,
-                          color: Colors.red,
+                      Container(
+                        decoration: BoxDecoration(
+                          color: AppColors.background,
+                          borderRadius: BorderRadius.circular(8),
+                          border: Border.all(color: AppColors.border),
+                        ),
+                        child: Row(
+                          children: [
+                            IconButton(
+                              visualDensity: VisualDensity.compact,
+                              icon: const Icon(Icons.remove, size: 16),
+                              onPressed: () => onUpdateQuantity(item.product.id, -1),
+                            ),
+                            Text(
+                              '${item.quantity}',
+                              style: const TextStyle(fontWeight: FontWeight.w700),
+                            ),
+                            IconButton(
+                              visualDensity: VisualDensity.compact,
+                              icon: const Icon(Icons.add, size: 16),
+                              onPressed: () => onUpdateQuantity(item.product.id, 1),
+                            ),
+                          ],
                         ),
                       ),
                     ],
@@ -802,70 +808,53 @@ class CartTab extends StatelessWidget {
             ),
           ),
           Container(
-            padding: const EdgeInsets.fromLTRB(
-              20,
-              16,
-              20,
-              20,
-            ),
+            padding: const EdgeInsets.all(20),
             decoration: const BoxDecoration(
-              color: Colors.white,
+              color: AppColors.surface,
+              border: Border(top: BorderSide(color: AppColors.border)),
             ),
-            child: Column(
-              children: [
-                Row(
-                  mainAxisAlignment:
-                      MainAxisAlignment.spaceBetween,
-                  children: [
-                    const Text(
-                      'Total',
-                      style: TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
+            child: SafeArea(
+              child: Column(
+                children: [
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(
+                        'Total ($totalReams Reams)',
+                        style: const TextStyle(fontSize: 14, color: AppColors.textSecondary),
                       ),
-                    ),
-                    Text(
-                      '₹$total',
-                      style: const TextStyle(
-                        fontSize: 22,
-                        fontWeight: FontWeight.bold,
+                      Text(
+                        '₹$subtotal',
+                        style: const TextStyle(fontSize: 22, fontWeight: FontWeight.w800),
                       ),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 14),
-                SizedBox(
-                  width: double.infinity,
-                  height: 52,
-                  child: ElevatedButton(
-                    onPressed: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (_) => CheckoutPage(
-                            cart: cart,
-                            total: total,
+                    ],
+                  ),
+                  const SizedBox(height: 16),
+                  SizedBox(
+                    width: double.infinity,
+                    height: 48,
+                    child: ElevatedButton(
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: AppColors.primary,
+                        foregroundColor: Colors.white,
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                      ),
+                      onPressed: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (_) => CheckoutScreen(
+                              cart: cartItems,
+                              total: subtotal,
+                            ),
                           ),
-                        ),
-                      );
-                    },
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: const Color(0xFF155EEF),
-                      foregroundColor: Colors.white,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(15),
-                      ),
-                    ),
-                    child: const Text(
-                      'Proceed to Checkout',
-                      style: TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.bold,
-                      ),
+                        );
+                      },
+                      child: const Text('Proceed to Order Details', style: TextStyle(fontWeight: FontWeight.w700)),
                     ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
           ),
         ],
@@ -874,139 +863,69 @@ class CartTab extends StatelessWidget {
   }
 }
 
-class EmptyCart extends StatelessWidget {
-  const EmptyCart({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return SafeArea(
-      child: Center(
-        child: Padding(
-          padding: const EdgeInsets.all(30),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Container(
-                height: 110,
-                width: 110,
-                decoration: BoxDecoration(
-                  color: const Color(0xFFEAF0FF),
-                  borderRadius: BorderRadius.circular(55),
-                ),
-                child: const Icon(
-                  Icons.shopping_cart_outlined,
-                  size: 55,
-                  color: Color(0xFF155EEF),
-                ),
-              ),
-              const SizedBox(height: 22),
-              const Text(
-                'Your cart is empty',
-                style: TextStyle(
-                  fontSize: 23,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-              const SizedBox(height: 8),
-              const Text(
-                'Add some quality paper products to your cart.',
-                textAlign: TextAlign.center,
-                style: TextStyle(
-                  color: Colors.grey,
-                ),
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-class CheckoutPage extends StatefulWidget {
-  final List<Product> cart;
+// ---------------------------------------------------------------------------
+// Screen 4: Checkout Screen
+// ---------------------------------------------------------------------------
+class CheckoutScreen extends StatefulWidget {
+  final List<CartItem> cart;
   final int total;
 
-  const CheckoutPage({
-    super.key,
-    required this.cart,
-    required this.total,
-  });
+  const CheckoutScreen({super.key, required this.cart, required this.total});
 
   @override
-  State<CheckoutPage> createState() => _CheckoutPageState();
+  State<CheckoutScreen> createState() => _CheckoutScreenState();
 }
 
-class _CheckoutPageState extends State<CheckoutPage> {
-  final nameController = TextEditingController();
-  final phoneController = TextEditingController();
-  final addressController = TextEditingController();
+class _CheckoutScreenState extends State<CheckoutScreen> {
+  final _formKey = GlobalKey<FormState>();
+  final _nameController = TextEditingController();
+  final _firmNameController = TextEditingController();
+  final _phoneController = TextEditingController();
+  final _addressController = TextEditingController();
 
-  Future<void> placeOrder() async {
-    if (nameController.text.trim().isEmpty ||
-        phoneController.text.trim().isEmpty ||
-        addressController.text.trim().isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text(
-            'Please fill all delivery details',
-          ),
-        ),
-      );
-      return;
-    }
+  Future<void> _submitOrder() async {
+    if (!_formKey.currentState!.validate()) return;
 
-    final items = widget.cart
-        .map(
-          (product) =>
-              '${product.brand} A4 Paper - ₹${product.price}',
-        )
+    final itemsSummary = widget.cart
+        .map((c) => '• ${c.product.brand} (${c.product.gsm} GSM) x ${c.quantity} reams = ₹${c.product.price * c.quantity}')
         .join('\n');
 
     final message = '''
-Hello Paper Hub,
+*OFFICIAL PAPER ORDER - PAPER HUB*
+---------------------------------------
+*Client Details:*
+Name: ${_nameController.text.trim()}
+Firm/Shop: ${_firmNameController.text.trim().isEmpty ? 'N/A' : _firmNameController.text.trim()}
+Phone: ${_phoneController.text.trim()}
+Address: ${_addressController.text.trim()}
 
-I want to place an order.
+*Order Breakdown:*
+$itemsSummary
 
-Customer Name: ${nameController.text.trim()}
-Phone: ${phoneController.text.trim()}
-Address: ${addressController.text.trim()}
-
-Products:
-$items
-
-Total: ₹${widget.total}
-
-Payment Method: Cash on Delivery
+*Total Amount:* ₹${widget.total}
+*Payment Method:* Cash on Delivery / UPI on Dispatch
+---------------------------------------
+Please confirm supply availability and dispatch timeline.
 ''';
 
-    final uri = Uri.parse(
-      'https://wa.me/917038343215?text=${Uri.encodeComponent(message)}',
-    );
+    final uri = Uri.parse('https://wa.me/917038343215?text=${Uri.encodeComponent(message)}');
 
     if (await canLaunchUrl(uri)) {
-      await launchUrl(
-        uri,
-        mode: LaunchMode.externalApplication,
-      );
+      await launchUrl(uri, mode: LaunchMode.externalApplication);
     } else {
       if (!mounted) return;
-
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text(
-            'WhatsApp could not be opened',
-          ),
-        ),
+        const SnackBar(content: Text('Could not open WhatsApp for confirmation')),
       );
     }
   }
 
   @override
   void dispose() {
-    nameController.dispose();
-    phoneController.dispose();
-    addressController.dispose();
+    _nameController.dispose();
+    _firmNameController.dispose();
+    _phoneController.dispose();
+    _addressController.dispose();
     super.dispose();
   }
 
@@ -1014,285 +933,202 @@ Payment Method: Cash on Delivery
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text(
-          'Checkout',
-          style: TextStyle(
-            fontWeight: FontWeight.bold,
-          ),
+        title: const Text('Order Specification', style: TextStyle(fontWeight: FontWeight.w700)),
+      ),
+      body: Form(
+        key: _formKey,
+        child: ListView(
+          padding: const EdgeInsets.all(20),
+          children: [
+            const Text(
+              'Delivery & Contact Info',
+              style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700),
+            ),
+            const SizedBox(height: 14),
+            TextFormField(
+              controller: _nameController,
+              decoration: _inputDecoration('Contact Person Name', Icons.person_outline),
+              validator: (v) => v!.isEmpty ? 'Enter name' : null,
+            ),
+            const SizedBox(height: 12),
+            TextFormField(
+              controller: _firmNameController,
+              decoration: _inputDecoration('Company / Shop Name (Optional)', Icons.storefront_outlined),
+            ),
+            const SizedBox(height: 12),
+            TextFormField(
+              controller: _phoneController,
+              keyboardType: TextInputType.phone,
+              decoration: _inputDecoration('Mobile Number', Icons.phone_outlined),
+              validator: (v) => v!.length < 10 ? 'Enter valid 10-digit number' : null,
+            ),
+            const SizedBox(height: 12),
+            TextFormField(
+              controller: _addressController,
+              maxLines: 3,
+              decoration: _inputDecoration('Delivery Address & Landmark', Icons.place_outlined),
+              validator: (v) => v!.isEmpty ? 'Enter full address' : null,
+            ),
+            const SizedBox(height: 24),
+            Container(
+              padding: const EdgeInsets.all(16),
+              decoration: BoxDecoration(
+                color: AppColors.surface,
+                borderRadius: BorderRadius.circular(12),
+                border: Border.all(color: AppColors.border),
+              ),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  const Text('Payable at Delivery', style: TextStyle(fontWeight: FontWeight.w600)),
+                  Text(
+                    '₹${widget.total}',
+                    style: const TextStyle(fontSize: 20, fontWeight: FontWeight.w800, color: AppColors.primary),
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(height: 24),
+            SizedBox(
+              height: 50,
+              child: ElevatedButton.icon(
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: const Color(0xFF075E54), // WhatsApp Business green
+                  foregroundColor: Colors.white,
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                ),
+                onPressed: _submitOrder,
+                icon: const Icon(Icons.send_rounded, size: 18),
+                label: const Text('Confirm via WhatsApp', style: TextStyle(fontWeight: FontWeight.w700)),
+              ),
+            ),
+          ],
         ),
+      ),
+    );
+  }
+
+  InputDecoration _inputDecoration(String label, IconData icon) {
+    return InputDecoration(
+      labelText: label,
+      labelStyle: const TextStyle(fontSize: 13, color: AppColors.textSecondary),
+      prefixIcon: Icon(icon, size: 20, color: AppColors.textSecondary),
+      filled: true,
+      fillColor: AppColors.surface,
+      contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 14),
+      enabledBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(10),
+        borderSide: const BorderSide(color: AppColors.border),
+      ),
+      focusedBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(10),
+        borderSide: const BorderSide(color: AppColors.primary, width: 1.5),
+      ),
+    );
+  }
+}
+
+// ---------------------------------------------------------------------------
+// Screen 5: Orders / History Screen
+// ---------------------------------------------------------------------------
+class OrdersScreen extends StatelessWidget {
+  const OrdersScreen({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('Dispatches & Orders', style: TextStyle(fontWeight: FontWeight.w700)),
+      ),
+      body: Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(Icons.inventory_2_outlined, size: 48, color: AppColors.textSecondary.withValues(alpha: 0.5)),
+            const SizedBox(height: 12),
+            const Text(
+              'No active dispatches',
+              style: TextStyle(fontWeight: FontWeight.w600, fontSize: 16),
+            ),
+            const SizedBox(height: 4),
+            const Text(
+              'Orders confirmed on WhatsApp will appear here',
+              style: TextStyle(color: AppColors.textSecondary, fontSize: 13),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+// ---------------------------------------------------------------------------
+// Screen 6: Account & Support
+// ---------------------------------------------------------------------------
+class ProfileScreen extends StatelessWidget {
+  const ProfileScreen({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('Account & Support', style: TextStyle(fontWeight: FontWeight.w700)),
       ),
       body: ListView(
         padding: const EdgeInsets.all(20),
         children: [
-          const Text(
-            'Delivery Details',
-            style: TextStyle(
-              fontSize: 22,
-              fontWeight: FontWeight.bold,
-            ),
-          ),
-          const SizedBox(height: 18),
-          AppTextField(
-            controller: nameController,
-            label: 'Full Name',
-            icon: Icons.person_outline,
-          ),
-          const SizedBox(height: 14),
-          AppTextField(
-            controller: phoneController,
-            label: 'Mobile Number',
-            icon: Icons.phone_outlined,
-            keyboardType: TextInputType.phone,
-          ),
-          const SizedBox(height: 14),
-          AppTextField(
-            controller: addressController,
-            label: 'Delivery Address',
-            icon: Icons.location_on_outlined,
-            maxLines: 4,
-          ),
-          const SizedBox(height: 22),
           Container(
-            padding: const EdgeInsets.all(18),
+            padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(18),
+              color: AppColors.surface,
+              borderRadius: BorderRadius.circular(12),
+              border: Border.all(color: AppColors.border),
             ),
-            child: Column(
-              children: [
-                Row(
-                  mainAxisAlignment:
-                      MainAxisAlignment.spaceBetween,
-                  children: [
-                    const Text('Payment'),
-                    Text(
-                      'Cash on Delivery',
-                      style: const TextStyle(
-                        fontWeight: FontWeight.bold,
-                        color: Color(0xFF00875A),
-                      ),
-                    ),
-                  ],
-                ),
-                const Divider(height: 24),
-                Row(
-                  mainAxisAlignment:
-                      MainAxisAlignment.spaceBetween,
-                  children: [
-                    const Text(
-                      'Total Amount',
-                      style: TextStyle(
-                        fontSize: 17,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                    Text(
-                      '₹${widget.total}',
-                      style: const TextStyle(
-                        fontSize: 21,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                  ],
-                ),
-              ],
-            ),
-          ),
-          const SizedBox(height: 24),
-          SizedBox(
-            height: 54,
-            child: ElevatedButton.icon(
-              onPressed: placeOrder,
-              icon: const Icon(Icons.chat_rounded),
-              label: const Text(
-                'Order on WhatsApp',
-                style: TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-              style: ElevatedButton.styleFrom(
-                backgroundColor: const Color(0xFF128C7E),
-                foregroundColor: Colors.white,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(15),
-                ),
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class AppTextField extends StatelessWidget {
-  final TextEditingController controller;
-  final String label;
-  final IconData icon;
-  final int maxLines;
-  final TextInputType? keyboardType;
-
-  const AppTextField({
-    super.key,
-    required this.controller,
-    required this.label,
-    required this.icon,
-    this.maxLines = 1,
-    this.keyboardType,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return TextField(
-      controller: controller,
-      maxLines: maxLines,
-      keyboardType: keyboardType,
-      decoration: InputDecoration(
-        labelText: label,
-        prefixIcon: Icon(icon),
-        filled: true,
-        fillColor: Colors.white,
-        border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(15),
-          borderSide: BorderSide.none,
-        ),
-      ),
-    );
-  }
-}
-
-class OrdersTab extends StatelessWidget {
-  const OrdersTab({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return SafeArea(
-      child: Center(
-        child: Padding(
-          padding: const EdgeInsets.all(30),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              const Icon(
-                Icons.receipt_long_outlined,
-                size: 80,
-                color: Color(0xFF155EEF),
-              ),
-              const SizedBox(height: 18),
-              const Text(
-                'No Orders Yet',
-                style: TextStyle(
-                  fontSize: 24,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-              const SizedBox(height: 8),
-              const Text(
-                'Your placed orders will appear here.',
-                textAlign: TextAlign.center,
-                style: TextStyle(
-                  color: Colors.grey,
-                ),
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-class ProfileTab extends StatelessWidget {
-  const ProfileTab({super.key});
-
-  Future<void> contactWhatsApp() async {
-    final uri = Uri.parse(
-      'https://wa.me/917038343215?text=${Uri.encodeComponent('Hello Paper Hub, I need help.')}', 
-    );
-
-    if (await canLaunchUrl(uri)) {
-      await launchUrl(
-        uri,
-        mode: LaunchMode.externalApplication,
-      );
-    }
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return SafeArea(
-      child: ListView(
-        padding: const EdgeInsets.all(20),
-        children: [
-          const Text(
-            'Profile',
-            style: TextStyle(
-              fontSize: 28,
-              fontWeight: FontWeight.bold,
-            ),
-          ),
-          const SizedBox(height: 22),
-          Container(
-            padding: const EdgeInsets.all(20),
-            decoration: BoxDecoration(
-              color: const Color(0xFF155EEF),
-              borderRadius: BorderRadius.circular(22),
-            ),
-            child: const Row(
+            child: Row(
               children: [
                 CircleAvatar(
-                  radius: 32,
-                  backgroundColor: Colors.white,
-                  child: Icon(
-                    Icons.person,
-                    color: Color(0xFF155EEF),
-                    size: 35,
-                  ),
+                  radius: 26,
+                  backgroundColor: AppColors.primary.withValues(alpha: 0.1),
+                  child: const Icon(Icons.business, color: AppColors.primary),
                 ),
-                SizedBox(width: 15),
+                const SizedBox(width: 14),
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
+                  children: const [
                     Text(
-                      'Paper Hub Customer',
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
-                      ),
+                      'B2B Enterprise Account',
+                      style: TextStyle(fontWeight: FontWeight.w700, fontSize: 15),
                     ),
-                    SizedBox(height: 4),
+                    SizedBox(height: 2),
                     Text(
-                      'Welcome to Paper Hub',
-                      style: TextStyle(
-                        color: Colors.white70,
-                      ),
+                      'Paper Hub Direct Desk',
+                      style: TextStyle(color: AppColors.textSecondary, fontSize: 12),
                     ),
                   ],
                 ),
               ],
             ),
           ),
-          const SizedBox(height: 22),
-          ProfileItem(
-            icon: Icons.shopping_bag_outlined,
-            title: 'My Orders',
+          const SizedBox(height: 20),
+          _AccountTile(
+            icon: Icons.support_agent_outlined,
+            title: 'Contact Supplier Desk',
+            subtitle: 'Direct WhatsApp inquiry',
+            onTap: () async {
+              final uri = Uri.parse('https://wa.me/917038343215');
+              if (await canLaunchUrl(uri)) launchUrl(uri, mode: LaunchMode.externalApplication);
+            },
+          ),
+          _AccountTile(
+            icon: Icons.description_outlined,
+            title: 'Download Mill Test Reports',
+            subtitle: 'Brightness & GSM certifications',
             onTap: () {},
           ),
-          ProfileItem(
-            icon: Icons.location_on_outlined,
-            title: 'Delivery Address',
-            onTap: () {},
-          ),
-          ProfileItem(
-            icon: Icons.help_outline,
-            title: 'Help & Support',
-            onTap: contactWhatsApp,
-          ),
-          ProfileItem(
-            icon: Icons.info_outline,
-            title: 'About Paper Hub',
+          _AccountTile(
+            icon: Icons.shield_outlined,
+            title: 'Terms of Supply & Returns',
+            subtitle: 'Damaged ream replacement policy',
             onTap: () {},
           ),
         ],
@@ -1301,15 +1137,16 @@ class ProfileTab extends StatelessWidget {
   }
 }
 
-class ProfileItem extends StatelessWidget {
+class _AccountTile extends StatelessWidget {
   final IconData icon;
   final String title;
+  final String subtitle;
   final VoidCallback onTap;
 
-  const ProfileItem({
-    super.key,
+  const _AccountTile({
     required this.icon,
     required this.title,
+    required this.subtitle,
     required this.onTap,
   });
 
@@ -1318,25 +1155,16 @@ class ProfileItem extends StatelessWidget {
     return Container(
       margin: const EdgeInsets.only(bottom: 10),
       decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
+        color: AppColors.surface,
+        borderRadius: BorderRadius.circular(10),
+        border: Border.all(color: AppColors.border),
       ),
       child: ListTile(
         onTap: onTap,
-        leading: Icon(
-          icon,
-          color: const Color(0xFF155EEF),
-        ),
-        title: Text(
-          title,
-          style: const TextStyle(
-            fontWeight: FontWeight.w600,
-          ),
-        ),
-        trailing: const Icon(
-          Icons.chevron_right,
-          color: Colors.grey,
-        ),
+        leading: Icon(icon, color: AppColors.primary),
+        title: Text(title, style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 14)),
+        subtitle: Text(subtitle, style: const TextStyle(color: AppColors.textSecondary, fontSize: 12)),
+        trailing: const Icon(Icons.chevron_right, size: 18, color: AppColors.textSecondary),
       ),
     );
   }
