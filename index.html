@@ -1,0 +1,774 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Paper Hub | Premium Paper Store</title>
+
+<style>
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: Arial, Helvetica, sans-serif;
+}
+
+body {
+  background: #f5f7fb;
+  color: #172033;
+}
+
+header {
+  background: #ffffff;
+  padding: 16px 6%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+  box-shadow: 0 2px 15px rgba(0,0,0,0.08);
+}
+
+.logo {
+  font-size: 25px;
+  font-weight: 800;
+  color: #155eef;
+}
+
+.logo span {
+  color: #172033;
+}
+
+nav {
+  display: flex;
+  gap: 25px;
+}
+
+nav a {
+  text-decoration: none;
+  color: #172033;
+  font-weight: 600;
+}
+
+.cart-btn {
+  border: none;
+  background: #155eef;
+  color: white;
+  padding: 11px 17px;
+  border-radius: 10px;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+.hero {
+  padding: 75px 6%;
+  background: linear-gradient(135deg, #eef4ff, #ffffff);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 40px;
+}
+
+.hero-text {
+  max-width: 600px;
+}
+
+.hero h1 {
+  font-size: 48px;
+  line-height: 1.1;
+  margin-bottom: 20px;
+}
+
+.hero h1 span {
+  color: #155eef;
+}
+
+.hero p {
+  font-size: 18px;
+  color: #667085;
+  margin-bottom: 30px;
+  line-height: 1.6;
+}
+
+.shop-btn {
+  display: inline-block;
+  background: #155eef;
+  color: white;
+  text-decoration: none;
+  padding: 14px 24px;
+  border-radius: 10px;
+  font-weight: bold;
+}
+
+.hero-card {
+  background: white;
+  padding: 45px;
+  border-radius: 25px;
+  box-shadow: 0 15px 40px rgba(0,0,0,0.10);
+  text-align: center;
+  min-width: 280px;
+}
+
+.paper-icon {
+  font-size: 85px;
+  margin-bottom: 15px;
+}
+
+section {
+  padding: 60px 6%;
+}
+
+.section-title {
+  text-align: center;
+  margin-bottom: 35px;
+}
+
+.section-title h2 {
+  font-size: 32px;
+  margin-bottom: 10px;
+}
+
+.section-title p {
+  color: #667085;
+}
+
+.products {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 25px;
+}
+
+.product {
+  background: white;
+  border-radius: 18px;
+  overflow: hidden;
+  box-shadow: 0 5px 20px rgba(0,0,0,0.07);
+  transition: 0.25s;
+}
+
+.product:hover {
+  transform: translateY(-5px);
+}
+
+.product-image {
+  height: 190px;
+  background: #eef4ff;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 80px;
+}
+
+.product-info {
+  padding: 22px;
+}
+
+.brand {
+  color: #155eef;
+  font-size: 14px;
+  font-weight: bold;
+  text-transform: uppercase;
+}
+
+.product h3 {
+  font-size: 21px;
+  margin: 8px 0;
+}
+
+.product p {
+  color: #667085;
+  font-size: 14px;
+  margin-bottom: 15px;
+}
+
+.price {
+  font-size: 23px;
+  font-weight: 800;
+  margin-bottom: 15px;
+}
+
+.add-btn {
+  width: 100%;
+  padding: 13px;
+  border: none;
+  border-radius: 9px;
+  background: #155eef;
+  color: white;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+.features {
+  background: white;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 25px;
+}
+
+.feature {
+  text-align: center;
+  padding: 25px;
+}
+
+.feature-icon {
+  font-size: 40px;
+  margin-bottom: 12px;
+}
+
+.feature h3 {
+  margin-bottom: 8px;
+}
+
+.feature p {
+  color: #667085;
+}
+
+.contact {
+  background: #172033;
+  color: white;
+  text-align: center;
+}
+
+.contact p {
+  margin: 10px 0;
+  color: #d0d5dd;
+}
+
+.whatsapp {
+  display: inline-block;
+  margin-top: 20px;
+  background: #25d366;
+  color: white;
+  text-decoration: none;
+  padding: 14px 25px;
+  border-radius: 10px;
+  font-weight: bold;
+}
+
+footer {
+  background: #101828;
+  color: #98a2b3;
+  text-align: center;
+  padding: 20px;
+  font-size: 14px;
+}
+
+/* CART */
+
+.cart-panel {
+  position: fixed;
+  top: 0;
+  right: -420px;
+  width: 400px;
+  max-width: 95%;
+  height: 100%;
+  background: white;
+  z-index: 2000;
+  box-shadow: -5px 0 25px rgba(0,0,0,0.15);
+  transition: 0.3s;
+  padding: 25px;
+  overflow-y: auto;
+}
+
+.cart-panel.active {
+  right: 0;
+}
+
+.cart-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 25px;
+}
+
+.close-cart {
+  background: none;
+  border: none;
+  font-size: 28px;
+  cursor: pointer;
+}
+
+.cart-item {
+  border-bottom: 1px solid #eee;
+  padding: 15px 0;
+}
+
+.cart-item h4 {
+  margin-bottom: 8px;
+}
+
+.qty {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: 8px;
+}
+
+.qty button {
+  width: 30px;
+  height: 30px;
+  border: none;
+  border-radius: 6px;
+  background: #eef4ff;
+  cursor: pointer;
+  font-size: 18px;
+}
+
+.remove {
+  color: #d92d20;
+  border: none;
+  background: none;
+  cursor: pointer;
+  margin-left: 10px;
+}
+
+.cart-total {
+  margin-top: 25px;
+  font-size: 23px;
+  font-weight: bold;
+}
+
+.order-btn {
+  width: 100%;
+  padding: 15px;
+  margin-top: 20px;
+  border: none;
+  border-radius: 10px;
+  background: #25d366;
+  color: white;
+  font-size: 16px;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+.overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.45);
+  z-index: 1500;
+  display: none;
+}
+
+.overlay.active {
+  display: block;
+}
+
+/* MOBILE */
+
+@media (max-width: 800px) {
+
+  nav {
+    display: none;
+  }
+
+  .hero {
+    flex-direction: column;
+    text-align: center;
+    padding: 55px 5%;
+  }
+
+  .hero h1 {
+    font-size: 38px;
+  }
+
+  .hero-card {
+    width: 100%;
+  }
+
+  .products {
+    grid-template-columns: 1fr;
+  }
+
+  .features {
+    grid-template-columns: 1fr;
+  }
+
+  section {
+    padding: 45px 5%;
+  }
+}
+</style>
+</head>
+
+<body>
+
+<header>
+  <div class="logo">Paper<span>Hub</span></div>
+
+  <nav>
+    <a href="#home">Home</a>
+    <a href="#products">Products</a>
+    <a href="#about">About</a>
+    <a href="#contact">Contact</a>
+  </nav>
+
+  <button class="cart-btn" onclick="openCart()">
+    🛒 Cart (<span id="cartCount">0</span>)
+  </button>
+</header>
+
+<main>
+
+<section class="hero" id="home">
+
+  <div class="hero-text">
+    <h1>Quality Paper for Your <span>Business</span></h1>
+
+    <p>
+      Premium A4 copier paper from trusted brands.
+      Perfect for offices, shops, schools and businesses.
+    </p>
+
+    <a href="#products" class="shop-btn">
+      Shop Now →
+    </a>
+  </div>
+
+  <div class="hero-card">
+    <div class="paper-icon">📄</div>
+    <h2>Premium A4 Paper</h2>
+    <p>Reliable • Professional • Affordable</p>
+  </div>
+
+</section>
+
+<section id="products">
+
+  <div class="section-title">
+    <h2>Our Products</h2>
+    <p>Choose from our popular paper brands</p>
+  </div>
+
+  <div class="products">
+
+    <div class="product">
+
+      <div class="product-image">📄</div>
+
+      <div class="product-info">
+
+        <div class="brand">B2B</div>
+
+        <h3>B2B A4 Copier Paper</h3>
+
+        <p>Premium quality A4 copier paper.</p>
+
+        <div class="price">₹210</div>
+
+        <button class="add-btn"
+          onclick="addToCart('B2B A4 Copier Paper',210)">
+          Add to Cart
+        </button>
+
+      </div>
+
+    </div>
+
+
+    <div class="product">
+
+      <div class="product-image">📄</div>
+
+      <div class="product-info">
+
+        <div class="brand">JK</div>
+
+        <h3>JK A4 Copier Paper</h3>
+
+        <p>Excellent paper for everyday office use.</p>
+
+        <div class="price">₹230</div>
+
+        <button class="add-btn"
+          onclick="addToCart('JK A4 Copier Paper',230)">
+          Add to Cart
+        </button>
+
+      </div>
+
+    </div>
+
+
+    <div class="product">
+
+      <div class="product-image">📄</div>
+
+      <div class="product-info">
+
+        <div class="brand">TNPL</div>
+
+        <h3>TNPL A4 Copier Paper</h3>
+
+        <p>High quality paper for printing and copying.</p>
+
+        <div class="price">₹200</div>
+
+        <button class="add-btn"
+          onclick="addToCart('TNPL A4 Copier Paper',200)">
+          Add to Cart
+        </button>
+
+      </div>
+
+    </div>
+
+  </div>
+
+</section>
+
+
+<section class="features" id="about">
+
+  <div class="feature">
+    <div class="feature-icon">🚚</div>
+    <h3>Fast Delivery</h3>
+    <p>Reliable delivery for your paper orders.</p>
+  </div>
+
+  <div class="feature">
+    <div class="feature-icon">⭐</div>
+    <h3>Quality Products</h3>
+    <p>Trusted paper brands for professional use.</p>
+  </div>
+
+  <div class="feature">
+    <div class="feature-icon">💬</div>
+    <h3>Easy Ordering</h3>
+    <p>Place your order directly through WhatsApp.</p>
+  </div>
+
+</section>
+
+
+<section class="contact" id="contact">
+
+  <div class="section-title">
+    <h2>Contact Paper Hub</h2>
+    <p>For bulk orders and enquiries, contact us.</p>
+  </div>
+
+  <p>📍 Majalgaon, Dist. Beed, Maharashtra</p>
+
+  <a
+    class="whatsapp"
+    href="https://wa.me/917038343215"
+    target="_blank">
+    💬 Chat on WhatsApp
+  </a>
+
+</section>
+
+</main>
+
+
+<footer>
+  © 2026 Paper Hub. All Rights Reserved.
+</footer>
+
+
+<!-- CART -->
+
+<div class="overlay" id="overlay" onclick="closeCart()"></div>
+
+<div class="cart-panel" id="cartPanel">
+
+  <div class="cart-header">
+
+    <h2>Your Cart</h2>
+
+    <button class="close-cart" onclick="closeCart()">×</button>
+
+  </div>
+
+  <div id="cartItems"></div>
+
+  <div class="cart-total">
+    Total: ₹<span id="cartTotal">0</span>
+  </div>
+
+  <button class="order-btn" onclick="orderWhatsApp()">
+    Order on WhatsApp
+  </button>
+
+</div>
+
+
+<script>
+
+let cart = [];
+
+
+function addToCart(name, price) {
+
+  const existing = cart.find(item => item.name === name);
+
+  if (existing) {
+    existing.quantity++;
+  } else {
+    cart.push({
+      name: name,
+      price: price,
+      quantity: 1
+    });
+  }
+
+  updateCart();
+
+  openCart();
+}
+
+
+function updateCart() {
+
+  const cartItems = document.getElementById("cartItems");
+  const cartCount = document.getElementById("cartCount");
+  const cartTotal = document.getElementById("cartTotal");
+
+  cartItems.innerHTML = "";
+
+  let total = 0;
+  let count = 0;
+
+  cart.forEach((item, index) => {
+
+    total += item.price * item.quantity;
+    count += item.quantity;
+
+    cartItems.innerHTML += `
+
+      <div class="cart-item">
+
+        <h4>${item.name}</h4>
+
+        <div>
+          ₹${item.price} × ${item.quantity}
+        </div>
+
+        <div class="qty">
+
+          <button onclick="changeQty(${index}, -1)">
+            −
+          </button>
+
+          <strong>${item.quantity}</strong>
+
+          <button onclick="changeQty(${index}, 1)">
+            +
+          </button>
+
+          <button class="remove"
+            onclick="removeItem(${index})">
+            Remove
+          </button>
+
+        </div>
+
+      </div>
+
+    `;
+
+  });
+
+  cartCount.innerText = count;
+  cartTotal.innerText = total;
+}
+
+
+function changeQty(index, change) {
+
+  cart[index].quantity += change;
+
+  if (cart[index].quantity <= 0) {
+    cart.splice(index, 1);
+  }
+
+  updateCart();
+}
+
+
+function removeItem(index) {
+
+  cart.splice(index, 1);
+
+  updateCart();
+}
+
+
+function openCart() {
+
+  document.getElementById("cartPanel")
+    .classList.add("active");
+
+  document.getElementById("overlay")
+    .classList.add("active");
+}
+
+
+function closeCart() {
+
+  document.getElementById("cartPanel")
+    .classList.remove("active");
+
+  document.getElementById("overlay")
+    .classList.remove("active");
+}
+
+
+function orderWhatsApp() {
+
+  if (cart.length === 0) {
+
+    alert("Your cart is empty.");
+
+    return;
+  }
+
+  let message =
+    "Hello Paper Hub,%0A%0AI want to place an order:%0A%0A";
+
+  let total = 0;
+
+  cart.forEach(item => {
+
+    const itemTotal =
+      item.price * item.quantity;
+
+    total += itemTotal;
+
+    message +=
+      "• " +
+      item.name +
+      " × " +
+      item.quantity +
+      " = ₹" +
+      itemTotal +
+      "%0A";
+
+  });
+
+  message +=
+    "%0A*Total: ₹" +
+    total +
+    "*%0A%0A";
+
+  message +=
+    "Please confirm my order.";
+
+  const whatsappNumber = "917038343215";
+
+  const url =
+    "https://wa.me/" +
+    whatsappNumber +
+    "?text=" +
+    message;
+
+  window.open(url, "_blank");
+}
+
+updateCart();
+
+</script>
+
+</body>
+</html>
