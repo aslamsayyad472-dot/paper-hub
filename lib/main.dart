@@ -41,7 +41,6 @@ class _CatalogScreenState extends State<CatalogScreen> {
 
   final List<String> categories = ['All Papers', '70 GSM A4', 'Bulk Box Offers'];
 
-  // Direct, working, reliable CDN links for each specific product
   final List<Map<String, dynamic>> allItems = [
     {
       'id': '1',
@@ -50,7 +49,7 @@ class _CatalogScreenState extends State<CatalogScreen> {
       'unit': 'per ream',
       'badge': 'Regular',
       'category': '70 GSM A4',
-      'image': 'https://i.ibb.co/3k5hVb0/b2b-paper.jpg',
+      'image': 'https://raw.githubusercontent.com/aslamsayyad472-dot/paperhubstore/main/b2b.jpg',
     },
     {
       'id': '2',
@@ -59,7 +58,7 @@ class _CatalogScreenState extends State<CatalogScreen> {
       'unit': 'per ream',
       'badge': 'Premium',
       'category': '70 GSM A4',
-      'image': 'https://i.ibb.co/n7ZfGzW/jk-copier.jpg',
+      'image': 'https://raw.githubusercontent.com/aslamsayyad472-dot/paperhubstore/main/jk.jpg',
     },
     {
       'id': '3',
@@ -68,7 +67,7 @@ class _CatalogScreenState extends State<CatalogScreen> {
       'unit': 'per ream',
       'badge': 'Best Price',
       'category': '70 GSM A4',
-      'image': 'https://i.ibb.co/6N6GgD7/tnpl-paper.jpg',
+      'image': 'https://raw.githubusercontent.com/aslamsayyad472-dot/paperhubstore/main/tnpl.jpg',
     },
     {
       'id': '4',
@@ -77,7 +76,7 @@ class _CatalogScreenState extends State<CatalogScreen> {
       'unit': '₹200 / ream',
       'badge': 'Special Offer',
       'category': 'Bulk Box Offers',
-      'image': 'https://i.ibb.co/q1t7189/b2b-box.jpg',
+      'image': 'https://raw.githubusercontent.com/aslamsayyad472-dot/paperhubstore/main/box.jpg',
     },
   ];
 
@@ -114,15 +113,7 @@ class _CatalogScreenState extends State<CatalogScreen> {
         await launchUrl(whatsappWebUri, mode: LaunchMode.externalApplication);
       }
     } catch (_) {
-      try {
-        await launchUrl(whatsappWebUri, mode: LaunchMode.externalApplication);
-      } catch (e) {
-        if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text("WhatsApp open karne mein dikkat aayi.")),
-          );
-        }
-      }
+      await launchUrl(whatsappWebUri, mode: LaunchMode.externalApplication);
     }
   }
 
@@ -197,7 +188,6 @@ class _CatalogScreenState extends State<CatalogScreen> {
             Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // Header
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
                   child: Row(
@@ -235,8 +225,6 @@ class _CatalogScreenState extends State<CatalogScreen> {
                     ],
                   ),
                 ),
-
-                // Search Bar
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
                   child: Row(
@@ -303,8 +291,6 @@ class _CatalogScreenState extends State<CatalogScreen> {
                     ],
                   ),
                 ),
-
-                // Category Selector
                 Container(
                   height: 40,
                   margin: const EdgeInsets.symmetric(vertical: 12),
@@ -342,8 +328,6 @@ class _CatalogScreenState extends State<CatalogScreen> {
                     },
                   ),
                 ),
-
-                // Cards Grid
                 Expanded(
                   child: displayItems.isEmpty
                       ? Center(
@@ -414,14 +398,6 @@ class _CatalogScreenState extends State<CatalogScreen> {
                                               favoriteItems.add(item['id']);
                                             }
                                           });
-                                          ScaffoldMessenger.of(context).showSnackBar(
-                                            SnackBar(
-                                              content: Text(isFav
-                                                  ? "Removed from favorites"
-                                                  : "Added to favorites"),
-                                              duration: const Duration(seconds: 1),
-                                            ),
-                                          );
                                         },
                                         child: Icon(
                                           isFav ? Icons.favorite : Icons.favorite_border,
@@ -438,11 +414,6 @@ class _CatalogScreenState extends State<CatalogScreen> {
                                         child: Image.network(
                                           item['image'],
                                           fit: BoxFit.contain,
-                                          loadingBuilder: (context, child, progress) {
-                                            if (progress == null) return child;
-                                            return const Center(
-                                                child: CircularProgressIndicator(strokeWidth: 2));
-                                          },
                                           errorBuilder: (_, __, ___) => const Icon(
                                             Icons.description,
                                             size: 50,
@@ -511,8 +482,6 @@ class _CatalogScreenState extends State<CatalogScreen> {
                 ),
               ],
             ),
-
-            // Bottom Floating Bar
             Positioned(
               bottom: 24,
               left: 30,
@@ -537,33 +506,20 @@ class _CatalogScreenState extends State<CatalogScreen> {
                     IconButton(
                       icon: Icon(Icons.home_filled,
                           color: currentNavIndex == 0 ? Colors.white : Colors.white54),
-                      onPressed: () {
-                        setState(() {
-                          currentNavIndex = 0;
-                        });
-                      },
+                      onPressed: () => setState(() => currentNavIndex = 0),
                     ),
                     IconButton(
                       icon: Icon(Icons.favorite,
                           color: currentNavIndex == 1 ? Colors.redAccent : Colors.white54),
-                      onPressed: () {
-                        setState(() {
-                          currentNavIndex = 1;
-                        });
-                      },
+                      onPressed: () => setState(() => currentNavIndex = 1),
                     ),
                     IconButton(
                       icon: Icon(Icons.receipt_long,
                           color: currentNavIndex == 2 ? Colors.white : Colors.white54),
                       onPressed: () {
-                        setState(() {
-                          currentNavIndex = 2;
-                        });
+                        setState(() => currentNavIndex = 2);
                         ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(
-                            content: Text("Orders are tracked via WhatsApp chat history."),
-                            duration: Duration(seconds: 2),
-                          ),
+                          const SnackBar(content: Text("Orders are tracked via WhatsApp chat history.")),
                         );
                       },
                     ),
