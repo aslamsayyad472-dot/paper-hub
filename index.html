@@ -1,1045 +1,284 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-<title>Paper Hub NEW TEST</title>
-
-<style>
-
-*{
-margin:0;
-padding:0;
-box-sizing:border-box;
-font-family:Arial,Helvetica,sans-serif;
-}
-
-body{
-background:#f6f8fc;
-color:#172033;
-}
-
-header{
-height:70px;
-background:white;
-display:flex;
-align-items:center;
-justify-content:space-between;
-padding:0 6%;
-position:sticky;
-top:0;
-z-index:1000;
-box-shadow:0 2px 15px rgba(0,0,0,.08);
-}
-
-.logo{
-font-size:25px;
-font-weight:800;
-color:#155eef;
-}
-
-.logo span{
-color:#172033;
-}
-
-nav{
-display:flex;
-gap:25px;
-}
-
-nav a{
-text-decoration:none;
-color:#172033;
-font-weight:600;
-}
-
-.cartButton{
-border:0;
-background:#155eef;
-color:white;
-padding:11px 17px;
-border-radius:10px;
-font-weight:bold;
-cursor:pointer;
-}
-
-.hero{
-padding:75px 6%;
-display:flex;
-align-items:center;
-justify-content:space-between;
-gap:40px;
-background:linear-gradient(135deg,#eef4ff,#fff);
-}
-
-.heroText{
-max-width:620px;
-}
-
-.heroText h1{
-font-size:50px;
-line-height:1.1;
-margin-bottom:20px;
-}
-
-.heroText h1 span{
-color:#155eef;
-}
-
-.heroText p{
-font-size:18px;
-color:#667085;
-line-height:1.6;
-margin-bottom:30px;
-}
-
-.shopButton{
-display:inline-block;
-background:#155eef;
-color:white;
-text-decoration:none;
-padding:14px 25px;
-border-radius:10px;
-font-weight:bold;
-}
-
-.heroCard{
-background:white;
-padding:45px;
-border-radius:25px;
-text-align:center;
-box-shadow:0 15px 40px rgba(0,0,0,.12);
-min-width:290px;
-}
-
-.heroCard .icon{
-font-size:85px;
-margin-bottom:15px;
-}
-
-section{
-padding:60px 6%;
-}
-
-.sectionTitle{
-text-align:center;
-margin-bottom:35px;
-}
-
-.sectionTitle h2{
-font-size:32px;
-margin-bottom:10px;
-}
-
-.sectionTitle p{
-color:#667085;
-}
-
-.searchBox{
-max-width:550px;
-margin:0 auto 35px;
-}
-
-.searchBox input{
-width:100%;
-padding:15px 18px;
-border:1px solid #d0d5dd;
-border-radius:12px;
-font-size:16px;
-outline:none;
-}
-
-.products{
-display:grid;
-grid-template-columns:repeat(3,1fr);
-gap:25px;
-}
-
-.product{
-background:white;
-border-radius:18px;
-overflow:hidden;
-box-shadow:0 5px 20px rgba(0,0,0,.07);
-transition:.25s;
-}
-
-.product:hover{
-transform:translateY(-5px);
-}
-
-.productImage{
-height:200px;
-background:#eef4ff;
-display:flex;
-align-items:center;
-justify-content:center;
-font-size:85px;
-}
-
-.productInfo{
-padding:22px;
-}
-
-.brand{
-color:#155eef;
-font-size:13px;
-font-weight:bold;
-text-transform:uppercase;
-}
-
-.productInfo h3{
-font-size:21px;
-margin:8px 0;
-}
-
-.productInfo p{
-color:#667085;
-font-size:14px;
-line-height:1.5;
-margin-bottom:15px;
-}
-
-.price{
-font-size:24px;
-font-weight:800;
-margin-bottom:15px;
-}
-
-.addButton{
-width:100%;
-padding:13px;
-border:0;
-border-radius:9px;
-background:#155eef;
-color:white;
-font-weight:bold;
-cursor:pointer;
-}
-
-.features{
-background:white;
-display:grid;
-grid-template-columns:repeat(3,1fr);
-gap:25px;
-}
-
-.feature{
-text-align:center;
-padding:25px;
-}
-
-.featureIcon{
-font-size:40px;
-margin-bottom:12px;
-}
-
-.feature h3{
-margin-bottom:8px;
-}
-
-.feature p{
-color:#667085;
-line-height:1.5;
-}
-
-.contact{
-background:#172033;
-color:white;
-text-align:center;
-}
-
-.contact p{
-color:#d0d5dd;
-margin:10px 0;
-}
-
-.whatsapp{
-display:inline-block;
-margin-top:20px;
-background:#25d366;
-color:white;
-text-decoration:none;
-padding:14px 25px;
-border-radius:10px;
-font-weight:bold;
-}
-
-footer{
-background:#101828;
-color:#98a2b3;
-text-align:center;
-padding:20px;
-font-size:14px;
-}
-
-
-/* CART */
-
-.overlay{
-position:fixed;
-inset:0;
-background:rgba(0,0,0,.45);
-z-index:1500;
-display:none;
-}
-
-.overlay.active{
-display:block;
-}
-
-.cart{
-position:fixed;
-right:-430px;
-top:0;
-height:100%;
-width:410px;
-max-width:95%;
-background:white;
-z-index:2000;
-padding:25px;
-box-shadow:-5px 0 25px rgba(0,0,0,.18);
-transition:.3s;
-overflow-y:auto;
-}
-
-.cart.active{
-right:0;
-}
-
-.cartHeader{
-display:flex;
-align-items:center;
-justify-content:space-between;
-margin-bottom:25px;
-}
-
-.close{
-background:none;
-border:0;
-font-size:30px;
-cursor:pointer;
-}
-
-.cartItem{
-border-bottom:1px solid #eee;
-padding:15px 0;
-}
-
-.cartItem h4{
-margin-bottom:7px;
-}
-
-.quantity{
-display:flex;
-align-items:center;
-gap:10px;
-margin-top:10px;
-}
-
-.quantity button{
-width:30px;
-height:30px;
-border:0;
-border-radius:6px;
-background:#eef4ff;
-cursor:pointer;
-font-size:18px;
-}
-
-.remove{
-border:0;
-background:none;
-color:#d92d20;
-cursor:pointer;
-margin-left:10px;
-}
-
-.total{
-font-size:23px;
-font-weight:bold;
-margin-top:25px;
-}
-
-.cod{
-margin-top:20px;
-background:#f2f4f7;
-padding:14px;
-border-radius:10px;
-font-size:14px;
-}
-
-.orderButton{
-width:100%;
-padding:15px;
-margin-top:15px;
-border:0;
-border-radius:10px;
-background:#25d366;
-color:white;
-font-weight:bold;
-font-size:16px;
-cursor:pointer;
-}
-
-
-/* MOBILE */
-
-@media(max-width:800px){
-
-nav{
-display:none;
-}
-
-header{
-padding:0 5%;
-}
-
-.hero{
-flex-direction:column;
-text-align:center;
-padding:55px 5%;
-}
-
-.heroText h1{
-font-size:38px;
-}
-
-.heroCard{
-width:100%;
-}
-
-.products{
-grid-template-columns:1fr;
-}
-
-.features{
-grid-template-columns:1fr;
-}
-
-section{
-padding:45px 5%;
-}
-
-}
-
-</style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Paper Hub | Premium A4 Copier Paper Store</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Poppins', sans-serif; }
+    </style>
 </head>
-
-
-<body>
-
-
-<header>
-
-<div class="logo">
-Paper<span>Hub</span>
-</div>
-
-<nav>
-<a href="#home">Home</a>
-<a href="#products">Products</a>
-<a href="#about">About</a>
-<a href="#contact">Contact</a>
-</nav>
-
-<button class="cartButton" onclick="openCart()">
-🛒 Cart (<span id="cartCount">0</span>)
-</button>
-
-</header>
-
-
-<section class="hero" id="home">
-
-<div class="heroText">
-
-<h1>
-Quality Paper for Your
-<span>Business</span>
-</h1>
-
-<p>
-Premium A4 copier paper from trusted brands.
-Perfect for offices, schools, shops and businesses.
-</p>
-
-<a href="#products" class="shopButton">
-Shop Now →
-</a>
-
-</div>
-
-
-<div class="heroCard">
-
-<div class="icon">📄</div>
-
-<h2>Premium A4 Paper</h2>
-
-<p>Quality • Reliable • Affordable</p>
-
-</div>
-
-</section>
-
-
-
-<section id="products">
-
-<div class="sectionTitle">
-
-<h2>Our Products</h2>
-
-<p>Choose your preferred paper brand</p>
-
-</div>
-
-
-<div class="searchBox">
-
-<input
-type="text"
-id="search"
-placeholder="🔍 Search products..."
-onkeyup="searchProducts()">
-
-</div>
-
-
-<div class="products" id="productList">
-
-
-<div class="product"
-data-name="B2B A4 Copier Paper">
-
-<div class="productImage">
-📄
-</div>
-
-<div class="productInfo">
-
-<div class="brand">
-B2B
-</div>
-
-<h3>
-B2B A4 Copier Paper
-</h3>
-
-<p>
-Premium quality A4 copier paper for everyday printing.
-</p>
-
-<div class="price">
-₹210
-</div>
-
-<button
-class="addButton"
-onclick="addToCart('B2B A4 Copier Paper',210)">
-Add to Cart
-</button>
-
-</div>
-</div>
-
-
-
-<div class="product"
-data-name="JK A4 Copier Paper">
-
-<div class="productImage">
-📄
-</div>
-
-<div class="productInfo">
-
-<div class="brand">
-JK
-</div>
-
-<h3>
-JK A4 Copier Paper
-</h3>
-
-<p>
-Reliable paper for offices, schools and businesses.
-</p>
-
-<div class="price">
-₹230
-</div>
-
-<button
-class="addButton"
-onclick="addToCart('JK A4 Copier Paper',230)">
-Add to Cart
-</button>
-
-</div>
-</div>
-
-
-
-<div class="product"
-data-name="TNPL A4 Copier Paper">
-
-<div class="productImage">
-📄
-</div>
-
-<div class="productInfo">
-
-<div class="brand">
-TNPL
-</div>
-
-<h3>
-TNPL A4 Copier Paper
-</h3>
-
-<p>
-High quality paper for copying and professional printing.
-</p>
-
-<div class="price">
-₹200
-</div>
-
-<button
-class="addButton"
-onclick="addToCart('TNPL A4 Copier Paper',200)">
-Add to Cart
-</button>
-
-</div>
-</div>
-
-
-</div>
-
-</section>
-
-
-
-<section class="features" id="about">
-
-
-<div class="feature">
-
-<div class="featureIcon">
-🚚
-</div>
-
-<h3>
-Fast Delivery
-</h3>
-
-<p>
-Reliable delivery for your paper orders.
-</p>
-
-</div>
-
-
-<div class="feature">
-
-<div class="featureIcon">
-⭐
-</div>
-
-<h3>
-Trusted Quality
-</h3>
-
-<p>
-Quality paper from trusted brands.
-</p>
-
-</div>
-
-
-<div class="feature">
-
-<div class="featureIcon">
-💬
-</div>
-
-<h3>
-Easy Ordering
-</h3>
-
-<p>
-Order directly through WhatsApp.
-</p>
-
-</div>
-
-
-</section>
-
-
-
-<section class="contact" id="contact">
-
-
-<div class="sectionTitle">
-
-<h2>
-Contact Paper Hub
-</h2>
-
-<p>
-For bulk orders and enquiries, contact us.
-</p>
-
-</div>
-
-
-<p>
-📍 Majalgaon, Dist. Beed, Maharashtra
-</p>
-
-
-<a
-class="whatsapp"
-href="https://wa.me/917038343215"
-target="_blank">
-
-💬 Chat on WhatsApp
-
-</a>
-
-
-</section>
-
-
-
-<footer>
-
-© 2026 Paper Hub. All Rights Reserved.
-
-</footer>
-
-
-
-<!-- CART -->
-
-<div
-class="overlay"
-id="overlay"
-onclick="closeCart()">
-</div>
-
-
-<div
-class="cart"
-id="cart">
-
-
-<div class="cartHeader">
-
-<h2>
-Your Cart
-</h2>
-
-<button
-class="close"
-onclick="closeCart()">
-×
-</button>
-
-</div>
-
-
-<div id="cartItems">
-</div>
-
-
-<div class="total">
-
-Total: ₹<span id="cartTotal">0</span>
-
-</div>
-
-
-<div class="cod">
-💵 <strong>Payment:</strong> Cash on Delivery (COD)
-</div>
-
-
-<button
-class="orderButton"
-onclick="orderWhatsApp()">
-
-💬 Order on WhatsApp
-
-</button>
-
-
-</div>
-
-
-
-<script>
-
-
-let cart=[];
-
-
-function addToCart(name,price){
-
-let existing=cart.find(
-item=>item.name===name
-);
-
-if(existing){
-
-existing.quantity++;
-
-}else{
-
-cart.push({
-name:name,
-price:price,
-quantity:1
-});
-
-}
-
-updateCart();
-
-openCart();
-
-}
-
-
-function updateCart(){
-
-const items=document.getElementById("cartItems");
-
-const count=document.getElementById("cartCount");
-
-const totalElement=document.getElementById("cartTotal");
-
-
-items.innerHTML="";
-
-let total=0;
-
-let countTotal=0;
-
-
-cart.forEach((item,index)=>{
-
-let itemTotal=
-item.price*item.quantity;
-
-total+=itemTotal;
-
-countTotal+=item.quantity;
-
-
-items.innerHTML+=`
-
-<div class="cartItem">
-
-<h4>${item.name}</h4>
-
-<div>
-₹${item.price} × ${item.quantity}
-</div>
-
-<div class="quantity">
-
-<button onclick="changeQty(${index},-1)">
-−
-</button>
-
-<strong>
-${item.quantity}
-</strong>
-
-<button onclick="changeQty(${index},1)">
-+
-</button>
-
-<button
-class="remove"
-onclick="removeItem(${index})">
-Remove
-</button>
-
-</div>
-
-</div>
-
-`;
-
-});
-
-
-count.innerText=countTotal;
-
-totalElement.innerText=total;
-
-}
-
-
-function changeQty(index,value){
-
-cart[index].quantity+=value;
-
-if(cart[index].quantity<=0){
-
-cart.splice(index,1);
-
-}
-
-updateCart();
-
-}
-
-
-function removeItem(index){
-
-cart.splice(index,1);
-
-updateCart();
-
-}
-
-
-function openCart(){
-
-document.getElementById("cart")
-.classList.add("active");
-
-document.getElementById("overlay")
-.classList.add("active");
-
-}
-
-
-function closeCart(){
-
-document.getElementById("cart")
-.classList.remove("active");
-
-document.getElementById("overlay")
-.classList.remove("active");
-
-}
-
-
-function orderWhatsApp(){
-
-if(cart.length===0){
-
-alert("Your cart is empty.");
-
-return;
-
-}
-
-
-let message=
-"Hello Paper Hub,%0A%0A"+
-"I want to place an order:%0A%0A";
-
-
-let total=0;
-
-
-cart.forEach(item=>{
-
-let itemTotal=
-item.price*item.quantity;
-
-total+=itemTotal;
-
-
-message+=
-"• "+
-item.name+
-" × "+
-item.quantity+
-" = ₹"+
-itemTotal+
-"%0A";
-
-});
-
-
-message+=
-"%0A*Total: ₹"+
-total+
-"*%0A";
-
-
-message+=
-"%0APayment: Cash on Delivery (COD)%0A";
-
-
-message+=
-"%0APlease confirm my order.";
-
-
-const phone=
-"917038343215";
-
-
-const url=
-"https://wa.me/"+
-phone+
-"?text="+
-message;
-
-
-window.open(url,"_blank");
-
-}
-
-
-function searchProducts(){
-
-let input=
-document.getElementById("search")
-.value
-.toLowerCase();
-
-
-let products=
-document.querySelectorAll(".product");
-
-
-products.forEach(product=>{
-
-let name=
-product
-.getAttribute("data-name")
-.toLowerCase();
-
-
-if(name.includes(input)){
-
-product.style.display="block";
-
-}else{
-
-product.style.display="none";
-
-}
-
-});
-
-}
-
-
-updateCart();
-
-</script>
-
+<body class="bg-slate-50 text-slate-800">
+
+    <header class="bg-white shadow-sm sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 py-4 flex justify-between items-center">
+            <div class="text-2xl font-bold text-blue-600 tracking-tight">
+                Paper<span class="text-slate-800">Hub</span>
+            </div>
+            <nav class="hidden md:flex space-x-6 font-medium text-slate-600">
+                <a href="#home" class="hover:text-blue-600 transition">Home</a>
+                <a href="#products" class="hover:text-blue-600 transition">Products</a>
+                <a href="#about" class="hover:text-blue-600 transition">About</a>
+                <a href="#contact" class="hover:text-blue-600 transition">Contact</a>
+            </nav>
+            <div class="flex items-center space-x-4">
+                <button onclick="toggleCart()" class="relative bg-blue-50 text-blue-600 px-4 py-2 rounded-lg font-medium hover:bg-blue-100 transition flex items-center gap-2">
+                    🛒 Cart <span id="cart-count" class="bg-blue-600 text-white text-xs px-2 py-0.5 rounded-full">0</span>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <section id="home" class="bg-gradient-to-r from-blue-600 to-indigo-700 text-white py-20 px-4">
+        <div class="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
+            <div>
+                <span class="bg-blue-500 bg-opacity-40 text-blue-100 text-xs font-semibold px-3 py-1 rounded-full uppercase tracking-wider">Trusted B2B Supplier</span>
+                <h1 class="text-4xl md:text-5xl font-extrabold mt-4 leading-tight">
+                    Quality Paper for Your <span class="text-yellow-300">Business</span>
+                </h1>
+                <p class="mt-4 text-blue-100 text-lg">
+                    Premium A4 copier paper from trusted brands. Perfect for offices, schools, shops, and bulk requirements.
+                </p>
+                <div class="mt-8">
+                    <a href="#products" class="bg-white text-blue-600 font-semibold px-8 py-3 rounded-lg shadow-lg hover:bg-yellow-300 hover:text-slate-900 transition">
+                        Shop Now &rarr;
+                    </a>
+                </div>
+            </div>
+            <div class="bg-white bg-opacity-10 backdrop-blur-md p-8 rounded-2xl border border-white border-opacity-25 text-center shadow-xl">
+                <div class="text-6xl mb-4">📄</div>
+                <h3 class="text-2xl font-bold">Premium A4 Copier Paper</h3>
+                <p class="text-blue-100 mt-2">75 GSM • Bright White • Jam-Free Printing</p>
+            </div>
+        </div>
+    </section>
+
+    <section id="products" class="py-16 max-w-7xl mx-auto px-4">
+        <div class="text-center mb-12">
+            <h2 class="text-3xl font-bold text-slate-900">Our Products</h2>
+            <p class="text-slate-500 mt-2">Choose your preferred paper brand at the best wholesale price</p>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+            <div class="bg-white rounded-xl shadow-md overflow-hidden border border-slate-100 hover:shadow-xl transition flex flex-col justify-between">
+                <div class="p-6">
+                    <div class="flex justify-between items-start mb-4">
+                        <span class="bg-slate-100 text-slate-700 text-xs font-bold px-2.5 py-1 rounded">TNPL</span>
+                        <span class="text-xs text-emerald-600 font-semibold bg-emerald-50 px-2 py-1 rounded">In Stock</span>
+                    </div>
+                    <div class="text-4xl mb-4 text-center py-4 bg-slate-50 rounded-lg">📦</div>
+                    <h3 class="text-xl font-bold text-slate-800">TNPL A4 Copier Paper</h3>
+                    <p class="text-slate-500 text-sm mt-2">High quality paper for copying, high-speed printing, and professional documentation.</p>
+                </div>
+                <div class="p-6 pt-0 flex items-center justify-between border-t border-slate-100 mt-4">
+                    <div>
+                        <span class="text-xs text-slate-400 block">Price / Ream</span>
+                        <span class="text-2xl font-bold text-slate-900">₹200</span>
+                    </div>
+                    <button onclick="addToCart('TNPL A4 Paper', 200)" class="bg-blue-600 text-white px-4 py-2 rounded-lg font-medium hover:bg-blue-700 transition">
+                        Add to Cart
+                    </button>
+                </div>
+            </div>
+
+            <div class="bg-white rounded-xl shadow-md overflow-hidden border border-slate-100 hover:shadow-xl transition flex flex-col justify-between">
+                <div class="p-6">
+                    <div class="flex justify-between items-start mb-4">
+                        <span class="bg-blue-100 text-blue-700 text-xs font-bold px-2.5 py-1 rounded">B2B Special</span>
+                        <span class="text-xs text-emerald-600 font-semibold bg-emerald-50 px-2 py-1 rounded">In Stock</span>
+                    </div>
+                    <div class="text-4xl mb-4 text-center py-4 bg-slate-50 rounded-lg">📦</div>
+                    <h3 class="text-xl font-bold text-slate-800">B2B A4 Copier Paper</h3>
+                    <p class="text-slate-500 text-sm mt-2">Premium quality A4 copier paper tailored for everyday heavy office printing needs.</p>
+                </div>
+                <div class="p-6 pt-0 flex items-center justify-between border-t border-slate-100 mt-4">
+                    <div>
+                        <span class="text-xs text-slate-400 block">Price / Ream</span>
+                        <span class="text-2xl font-bold text-slate-900">₹210</span>
+                    </div>
+                    <button onclick="addToCart('B2B A4 Paper', 210)" class="bg-blue-600 text-white px-4 py-2 rounded-lg font-medium hover:bg-blue-700 transition">
+                        Add to Cart
+                    </button>
+                </div>
+            </div>
+
+            <div class="bg-white rounded-xl shadow-md overflow-hidden border border-slate-100 hover:shadow-xl transition flex flex-col justify-between">
+                <div class="p-6">
+                    <div class="flex justify-between items-start mb-4">
+                        <span class="bg-orange-100 text-orange-700 text-xs font-bold px-2.5 py-1 rounded">JK Brand</span>
+                        <span class="text-xs text-emerald-600 font-semibold bg-emerald-50 px-2 py-1 rounded">In Stock</span>
+                    </div>
+                    <div class="text-4xl mb-4 text-center py-4 bg-slate-50 rounded-lg">📦</div>
+                    <h3 class="text-xl font-bold text-slate-800">JK A4 Copier Paper</h3>
+                    <p class="text-slate-500 text-sm mt-2">Reliable and popular paper trusted by offices, schools, and business shops nationwide.</p>
+                </div>
+                <div class="p-6 pt-0 flex items-center justify-between border-t border-slate-100 mt-4">
+                    <div>
+                        <span class="text-xs text-slate-400 block">Price / Ream</span>
+                        <span class="text-2xl font-bold text-slate-900">₹230</span>
+                    </div>
+                    <button onclick="addToCart('JK A4 Paper', 230)" class="bg-blue-600 text-white px-4 py-2 rounded-lg font-medium hover:bg-blue-700 transition">
+                        Add to Cart
+                    </button>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="bg-white py-16 border-y border-slate-200">
+        <div class="max-w-7xl mx-auto px-4 grid grid-cols-1 md:grid-cols-3 gap-8 text-center">
+            <div class="p-6">
+                <div class="text-4xl mb-3">🚚</div>
+                <h3 class="font-bold text-lg">Fast Delivery</h3>
+                <p class="text-slate-500 text-sm mt-1">Reliable doorstep delivery for your business paper orders.</p>
+            </div>
+            <div class="p-6">
+                <div class="text-4xl mb-3">⭐</div>
+                <h3 class="font-bold text-lg">Trusted Quality</h3>
+                <p class="text-slate-500 text-sm mt-1">100% genuine paper supplies sourced directly from trusted mill brands.</p>
+            </div>
+            <div class="p-6">
+                <div class="text-4xl mb-3">💬</div>
+                <h3 class="font-bold text-lg">Easy Ordering</h3>
+                <p class="text-slate-500 text-sm mt-1">Direct checkout and instant order generation through WhatsApp.</p>
+            </div>
+        </div>
+    </section>
+
+    <section id="contact" class="py-16 max-w-4xl mx-auto px-4 text-center">
+        <h2 class="text-3xl font-bold text-slate-900">Contact Paper Hub</h2>
+        <p class="text-slate-500 mt-2">For bulk orders, custom requirements, and business enquiries, get in touch with us.</p>
+        <p class="mt-4 font-medium text-slate-700">📍 Majalgaon, Dist. Beed, Maharashtra</p>
+        
+        <div class="mt-6 flex flex-wrap justify-center gap-4">
+            <a href="https://wa.me/917038343215" target="_blank" class="inline-flex items-center gap-2 bg-emerald-600 text-white font-semibold px-5 py-3 rounded-lg shadow-md hover:bg-emerald-700 transition text-sm">
+                💬 WhatsApp 1: +91 70383 43215
+            </a>
+            <a href="https://wa.me/919175635317" target="_blank" class="inline-flex items-center gap-2 bg-emerald-700 text-white font-semibold px-5 py-3 rounded-lg shadow-md hover:bg-emerald-800 transition text-sm">
+                💬 WhatsApp 2: +91 91756 35317
+            </a>
+        </div>
+    </section>
+
+    <footer class="bg-slate-900 text-slate-400 py-8 text-center text-sm">
+        <p>&copy; 2026 Paper Hub. All Rights Reserved.</p>
+    </footer>
+
+    <div id="cart-drawer" class="fixed inset-0 bg-slate-900 bg-opacity-50 z-50 hidden flex justify-end">
+        <div class="bg-white w-full max-w-md h-full shadow-2xl flex flex-col justify-between p-6">
+            <div>
+                <div class="flex justify-between items-center border-b pb-4">
+                    <h2 class="text-xl font-bold text-slate-800">Your Cart</h2>
+                    <button onclick="toggleCart()" class="text-slate-400 hover:text-slate-600 text-xl font-bold">&times;</button>
+                </div>
+                <div id="cart-items" class="mt-4 space-y-4 max-h-[60vh] overflow-y-auto">
+                    <p class="text-slate-400 text-center py-8">Your cart is empty.</p>
+                </div>
+            </div>
+            <div class="border-t pt-4">
+                <div class="flex justify-between items-center text-lg font-bold text-slate-900 mb-4">
+                    <span>Total:</span>
+                    <span>₹<span id="cart-total">0</span></span>
+                </div>
+                <div class="text-xs text-slate-500 mb-4 bg-slate-50 p-2 rounded">
+                    💵 <strong>Payment:</strong> Cash on Delivery (COD)
+                </div>
+                <div class="space-y-2">
+                    <button onclick="checkoutWhatsApp('917038343215')" class="w-full bg-emerald-600 text-white font-bold py-2.5 rounded-lg hover:bg-emerald-700 transition flex items-center justify-center gap-2 text-sm">
+                        💬 Order on WhatsApp (7038343215)
+                    </button>
+                    <button onclick="checkoutWhatsApp('919175635317')" class="w-full bg-emerald-700 text-white font-bold py-2.5 rounded-lg hover:bg-emerald-800 transition flex items-center justify-center gap-2 text-sm">
+                        💬 Order on WhatsApp (9175635317)
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let cart = [];
+
+        function toggleCart() {
+            const drawer = document.getElementById('cart-drawer');
+            drawer.classList.toggle('hidden');
+        }
+
+        function addToCart(name, price) {
+            const existingItem = cart.find(item => item.name === name);
+            if (existingItem) {
+                existingItem.qty += 1;
+            } else {
+                cart.push({ name, price, qty: 1 });
+            }
+            updateCartUI();
+            toggleCart();
+        }
+
+        function updateCartUI() {
+            const cartItemsContainer = document.getElementById('cart-items');
+            const cartCount = document.getElementById('cart-count');
+            const cartTotal = document.getElementById('cart-total');
+
+            let totalCount = 0;
+            let totalPrice = 0;
+
+            if (cart.length === 0) {
+                cartItemsContainer.innerHTML = '<p class="text-slate-400 text-center py-8">Your cart is empty.</p>';
+            } else {
+                cartItemsContainer.innerHTML = '';
+                cart.forEach((item, index) => {
+                    totalCount += item.qty;
+                    totalPrice += item.price * item.qty;
+                    
+                    cartItemsContainer.innerHTML += `
+                        <div class="flex justify-between items-center bg-slate-50 p-3 rounded-lg border">
+                            <div>
+                                <h4 class="font-semibold text-slate-800">${item.name}</h4>
+                                <p class="text-sm text-slate-500">₹${item.price} × ${item.qty}</p>
+                            </div>
+                            <div class="flex items-center gap-2">
+                                <button onclick="changeQty(${index}, -1)" class="bg-white border px-2 py-0.5 rounded text-sm">-</button>
+                                <span class="font-medium">${item.qty}</span>
+                                <button onclick="changeQty(${index}, 1)" class="bg-white border px-2 py-0.5 rounded text-sm">+</button>
+                            </div>
+                        </div>
+                    `;
+                });
+            }
+
+            cartCount.innerText = totalCount;
+            cartTotal.innerText = totalPrice;
+        }
+
+        function changeQty(index, change) {
+            cart[index].qty += change;
+            if (cart[index].qty <= 0) {
+                cart.splice(index, 1);
+            }
+            updateCartUI();
+        }
+
+        function checkoutWhatsApp(phoneNumber) {
+            if (cart.length === 0) {
+                alert('Please add items to your cart first.');
+                return;
+            }
+
+            let message = "Hi, I want to place an order from Paper Hub:%0A";
+            let total = 0;
+
+            cart.forEach(item => {
+                message += `- ${item.name} (${item.qty} ream) - ₹${item.price * item.qty}%0A`;
+                total += item.price * item.qty;
+            });
+
+            message += `%0A*Total Amount: ₹${total}*%0APayment Mode: Cash on Delivery (COD)`;
+
+            const whatsappUrl = `https://wa.me/${phoneNumber}?text=${message}`;
+            window.open(whatsappUrl, '_blank');
+        }
+    </script>
 </body>
 </html>
