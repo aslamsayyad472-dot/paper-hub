@@ -38,7 +38,6 @@ class _CatalogScreenState extends State<CatalogScreen> {
 
   final List<String> categories = ['All Papers', '70 GSM A4', 'Bulk Box Offers'];
 
-  // Direct online links (Bina folder banaye kaam karega)
   final List<Map<String, dynamic>> items = [
     {
       'title': 'B2B 70 GSM A4 Ream',
@@ -245,7 +244,7 @@ class _CatalogScreenState extends State<CatalogScreen> {
                             child: Text(
                               categories[index],
                               style: TextStyle(
-                                color: isSelected ? Colors.white : Colors.black86,
+                                color: isSelected ? Colors.white : Colors.black87,
                                 fontWeight: FontWeight.w600,
                                 fontSize: 13,
                               ),
