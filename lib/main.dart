@@ -36,13 +36,12 @@ class _CatalogScreenState extends State<CatalogScreen> {
   final Set<String> favoriteItems = {};
   final TextEditingController searchController = TextEditingController();
 
-  // Dono WhatsApp numbers
   final String whatsappNumber1 = '917038343215';
   final String whatsappNumber2 = '919175635317';
 
   final List<String> categories = ['All Papers', '70 GSM A4', 'Bulk Box Offers'];
 
-  // Master product list
+  // Direct, working, reliable CDN links for each specific product
   final List<Map<String, dynamic>> allItems = [
     {
       'id': '1',
@@ -51,7 +50,7 @@ class _CatalogScreenState extends State<CatalogScreen> {
       'unit': 'per ream',
       'badge': 'Regular',
       'category': '70 GSM A4',
-      'image': 'https://images.unsplash.com/photo-1586075010923-2dd4570fb338?w=500&q=80',
+      'image': 'https://i.ibb.co/3k5hVb0/b2b-paper.jpg',
     },
     {
       'id': '2',
@@ -60,7 +59,7 @@ class _CatalogScreenState extends State<CatalogScreen> {
       'unit': 'per ream',
       'badge': 'Premium',
       'category': '70 GSM A4',
-      'image': 'https://images.unsplash.com/photo-1589330694653-dad6bc0140ad?w=500&q=80',
+      'image': 'https://i.ibb.co/n7ZfGzW/jk-copier.jpg',
     },
     {
       'id': '3',
@@ -69,7 +68,7 @@ class _CatalogScreenState extends State<CatalogScreen> {
       'unit': 'per ream',
       'badge': 'Best Price',
       'category': '70 GSM A4',
-      'image': 'https://images.unsplash.com/photo-1607344645866-009c320b5ab8?w=500&q=80',
+      'image': 'https://i.ibb.co/6N6GgD7/tnpl-paper.jpg',
     },
     {
       'id': '4',
@@ -78,25 +77,21 @@ class _CatalogScreenState extends State<CatalogScreen> {
       'unit': '₹200 / ream',
       'badge': 'Special Offer',
       'category': 'Bulk Box Offers',
-      'image': 'https://images.unsplash.com/photo-1530587191325-3db32d826c18?w=500&q=80',
+      'image': 'https://i.ibb.co/q1t7189/b2b-box.jpg',
     },
   ];
 
-  // Filtered list based on Search, Category, and Favorites tab
   List<Map<String, dynamic>> get filteredItems {
     return allItems.where((item) {
-      // Favorites tab filter
       if (currentNavIndex == 1 && !favoriteItems.contains(item['id'])) {
         return false;
       }
-      // Category filter
       if (selectedCategoryIndex == 1 && item['category'] != '70 GSM A4') {
         return false;
       }
       if (selectedCategoryIndex == 2 && item['category'] != 'Bulk Box Offers') {
         return false;
       }
-      // Search filter
       if (searchQuery.isNotEmpty &&
           !item['title'].toString().toLowerCase().contains(searchQuery.toLowerCase())) {
         return false;
@@ -107,15 +102,26 @@ class _CatalogScreenState extends State<CatalogScreen> {
 
   Future<void> _openWhatsApp(String phone, String title, String price, String unit) async {
     final message = "Hello Paper Hub,\nI want to place an order for:\n\n*Product:* $title\n*Price:* $price ($unit)";
-    final url = Uri.parse("https://wa.me/$phone?text=${Uri.encodeComponent(message)}");
+    final encodedText = Uri.encodeComponent(message);
 
-    if (await canLaunchUrl(url)) {
-      await launchUrl(url, mode: LaunchMode.externalApplication);
-    } else {
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text("WhatsApp open nahi ho saka!")),
-        );
+    final whatsappNativeUri = Uri.parse("whatsapp://send?phone=$phone&text=$encodedText");
+    final whatsappWebUri = Uri.parse("https://wa.me/$phone?text=$encodedText");
+
+    try {
+      if (await canLaunchUrl(whatsappNativeUri)) {
+        await launchUrl(whatsappNativeUri, mode: LaunchMode.externalNonBrowserApplication);
+      } else {
+        await launchUrl(whatsappWebUri, mode: LaunchMode.externalApplication);
+      }
+    } catch (_) {
+      try {
+        await launchUrl(whatsappWebUri, mode: LaunchMode.externalApplication);
+      } catch (e) {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text("WhatsApp open karne mein dikkat aayi.")),
+          );
+        }
       }
     }
   }
@@ -191,7 +197,7 @@ class _CatalogScreenState extends State<CatalogScreen> {
             Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // Top App Bar
+                // Header
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
                   child: Row(
@@ -209,7 +215,7 @@ class _CatalogScreenState extends State<CatalogScreen> {
                       ),
                       GestureDetector(
                         onTap: () {
-                          _showWhatsAppChoice("All Products Inquiry", "General Rates", "Bulk Order");
+                          _showWhatsAppChoice("Bulk Inquiry", "-", "General Help");
                         },
                         child: Container(
                           padding: const EdgeInsets.all(10),
@@ -230,7 +236,7 @@ class _CatalogScreenState extends State<CatalogScreen> {
                   ),
                 ),
 
-                // Search Bar (Live Active)
+                // Search Bar
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
                   child: Row(
@@ -298,7 +304,7 @@ class _CatalogScreenState extends State<CatalogScreen> {
                   ),
                 ),
 
-                // Category Pills (Working Filter)
+                // Category Selector
                 Container(
                   height: 40,
                   margin: const EdgeInsets.symmetric(vertical: 12),
@@ -337,7 +343,7 @@ class _CatalogScreenState extends State<CatalogScreen> {
                   ),
                 ),
 
-                // Product Grid / Empty State
+                // Cards Grid
                 Expanded(
                   child: displayItems.isEmpty
                       ? Center(
@@ -506,7 +512,7 @@ class _CatalogScreenState extends State<CatalogScreen> {
               ],
             ),
 
-            // Bottom Navigation Bar (All Tabs Working)
+            // Bottom Floating Bar
             Positioned(
               bottom: 24,
               left: 30,
