@@ -22,7 +22,7 @@ class AppColors {
 }
 
 // ---------------------------------------------------------------------------
-// WhatsApp Helpers (Dono numbers ke liye)
+// WhatsApp Helper Function (Web & Mobile Compatible)
 // ---------------------------------------------------------------------------
 Future<void> openWhatsAppChat(String phone, {String text = ''}) async {
   final cleanNumber = phone.replaceAll(RegExp(r'[^0-9]'), '');
@@ -31,20 +31,23 @@ Future<void> openWhatsAppChat(String phone, {String text = ''}) async {
     text.isNotEmpty ? text : 'Hello Paper Hub, mujhe order/inquiry karni hai.',
   );
 
-  final Uri appUri = Uri.parse('whatsapp://send?phone=$fullNumber&text=$encodedMsg');
-  final Uri webUri = Uri.parse('https://wa.me/$fullNumber?text=$encodedMsg');
+  // Web aur Mobile dono platform par work karega
+  final Uri url = Uri.parse("https://api.whatsapp.com/send?phone=$fullNumber&text=$encodedMsg");
 
   try {
-    if (await canLaunchUrl(appUri)) {
-      await launchUrl(appUri, mode: LaunchMode.externalApplication);
-    } else if (await canLaunchUrl(webUri)) {
-      await launchUrl(webUri, mode: LaunchMode.externalApplication);
-    }
+    await launchUrl(
+      url,
+      mode: LaunchMode.externalApplication,
+      webOnlyWindowName: '_blank',
+    );
   } catch (e) {
     debugPrint('WhatsApp open error: $e');
   }
 }
 
+// ---------------------------------------------------------------------------
+// WhatsApp 2 Numbers Bottom Sheet Modal
+// ---------------------------------------------------------------------------
 void showWhatsAppDialog(BuildContext context, {String customText = ''}) {
   showModalBottomSheet(
     context: context,
@@ -794,7 +797,6 @@ class _ProductsScreenState extends State<ProductsScreen> {
       ),
       body: Column(
         children: [
-          // Filter Chips
           SingleChildScrollView(
             scrollDirection: Axis.horizontal,
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
@@ -817,7 +819,6 @@ class _ProductsScreenState extends State<ProductsScreen> {
               }).toList(),
             ),
           ),
-          // Product List
           Expanded(
             child: ListView.builder(
               padding: const EdgeInsets.symmetric(horizontal: 16),
@@ -848,25 +849,21 @@ class _ProductsScreenState extends State<ProductsScreen> {
                             ],
                           ),
                         ),
-                        Column(
-                          children: [
-                            ElevatedButton(
-                              style: ElevatedButton.styleFrom(
-                                backgroundColor: AppColors.primary,
-                                padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+                        ElevatedButton(
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: AppColors.primary,
+                            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+                          ),
+                          onPressed: () {
+                            widget.onAddToCart(p);
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(
+                                content: Text('${p.title} added to cart!'),
+                                duration: const Duration(milliseconds: 900),
                               ),
-                              onPressed: () {
-                                widget.onAddToCart(p);
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                  SnackBar(
-                                    content: Text('${p.title} added to cart!'),
-                                    duration: const Duration(milliseconds: 900),
-                                  ),
-                                );
-                              },
-                              child: const Text('Add', style: TextStyle(color: Colors.white, fontSize: 12)),
-                            ),
-                          ],
+                            );
+                          },
+                          child: const Text('Add', style: TextStyle(color: Colors.white, fontSize: 12)),
                         ),
                       ],
                     ),
@@ -1084,7 +1081,7 @@ class CartScreen extends StatelessWidget {
                             style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
                           ),
                           onPressed: () {
-                            final orderText = 'Paper Hub Order Summary:\nTotal Amount: ₹$total\nItem Count: ${cart.length}';
+                            final orderText = 'Paper Hub Order Summary:\nTotal Amount: ₹$total\nItems: ${cart.length} items';
                             showWhatsAppDialog(context, customText: orderText);
                           },
                         ),
