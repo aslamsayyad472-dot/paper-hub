@@ -31,6 +31,10 @@ class CatalogScreen extends StatefulWidget {
 
 class _CatalogScreenState extends State<CatalogScreen> {
   int selectedCategoryIndex = 0;
+  int currentNavIndex = 0;
+  String searchQuery = '';
+  final Set<String> favoriteItems = {};
+  final TextEditingController searchController = TextEditingController();
 
   // Dono WhatsApp numbers
   final String whatsappNumber1 = '917038343215';
@@ -38,36 +42,68 @@ class _CatalogScreenState extends State<CatalogScreen> {
 
   final List<String> categories = ['All Papers', '70 GSM A4', 'Bulk Box Offers'];
 
-  final List<Map<String, dynamic>> items = [
+  // Master product list
+  final List<Map<String, dynamic>> allItems = [
     {
+      'id': '1',
       'title': 'B2B 70 GSM A4 Ream',
       'price': '₹220',
       'unit': 'per ream',
       'badge': 'Regular',
-      'image': 'https://5.imimg.com/data5/SELLER/Default/2021/6/TG/ZV/YF/27536968/b2b-copier-paper-500x500.jpg',
+      'category': '70 GSM A4',
+      'image': 'https://images.unsplash.com/photo-1586075010923-2dd4570fb338?w=500&q=80',
     },
     {
+      'id': '2',
       'title': 'JK Easy Copier 70 GSM',
       'price': '₹240',
       'unit': 'per ream',
       'badge': 'Premium',
-      'image': 'https://5.imimg.com/data5/SELLER/Default/2022/9/VK/TN/HQ/47372251/jk-easy-copier-paper-500x500.jpg',
+      'category': '70 GSM A4',
+      'image': 'https://images.unsplash.com/photo-1589330694653-dad6bc0140ad?w=500&q=80',
     },
     {
+      'id': '3',
       'title': 'TNPL Platinum 70 GSM',
       'price': '₹200',
       'unit': 'per ream',
       'badge': 'Best Price',
-      'image': 'https://5.imimg.com/data5/SELLER/Default/2023/1/ZQ/PZ/YJ/101347076/tnpl-platinum-copier-paper-500x500.jpg',
+      'category': '70 GSM A4',
+      'image': 'https://images.unsplash.com/photo-1607344645866-009c320b5ab8?w=500&q=80',
     },
     {
+      'id': '4',
       'title': 'B2B Box (10 Reams Pack)',
       'price': '₹2,000',
       'unit': '₹200 / ream',
       'badge': 'Special Offer',
-      'image': 'https://m.media-amazon.com/images/I/41sWq-2H7+L._AC_UF350,350_QL80_.jpg',
+      'category': 'Bulk Box Offers',
+      'image': 'https://images.unsplash.com/photo-1530587191325-3db32d826c18?w=500&q=80',
     },
   ];
+
+  // Filtered list based on Search, Category, and Favorites tab
+  List<Map<String, dynamic>> get filteredItems {
+    return allItems.where((item) {
+      // Favorites tab filter
+      if (currentNavIndex == 1 && !favoriteItems.contains(item['id'])) {
+        return false;
+      }
+      // Category filter
+      if (selectedCategoryIndex == 1 && item['category'] != '70 GSM A4') {
+        return false;
+      }
+      if (selectedCategoryIndex == 2 && item['category'] != 'Bulk Box Offers') {
+        return false;
+      }
+      // Search filter
+      if (searchQuery.isNotEmpty &&
+          !item['title'].toString().toLowerCase().contains(searchQuery.toLowerCase())) {
+        return false;
+      }
+      return true;
+    }).toList();
+  }
 
   Future<void> _openWhatsApp(String phone, String title, String price, String unit) async {
     final message = "Hello Paper Hub,\nI want to place an order for:\n\n*Product:* $title\n*Price:* $price ($unit)";
@@ -146,6 +182,8 @@ class _CatalogScreenState extends State<CatalogScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final displayItems = filteredItems;
+
     return Scaffold(
       body: SafeArea(
         child: Stack(
@@ -159,33 +197,40 @@ class _CatalogScreenState extends State<CatalogScreen> {
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      const Text(
-                        'Paper Hub',
-                        style: TextStyle(
+                      Text(
+                        currentNavIndex == 1
+                            ? 'Favorites'
+                            : (currentNavIndex == 2 ? 'My Orders' : 'Paper Hub'),
+                        style: const TextStyle(
                           fontSize: 26,
                           fontWeight: FontWeight.bold,
                           color: Color(0xFF1A1A1A),
                         ),
                       ),
-                      Container(
-                        padding: const EdgeInsets.all(8),
-                        decoration: BoxDecoration(
-                          color: Colors.white,
-                          shape: BoxShape.circle,
-                          boxShadow: [
-                            BoxShadow(
-                              color: Colors.black.withOpacity(0.04),
-                              blurRadius: 8,
-                            ),
-                          ],
+                      GestureDetector(
+                        onTap: () {
+                          _showWhatsAppChoice("All Products Inquiry", "General Rates", "Bulk Order");
+                        },
+                        child: Container(
+                          padding: const EdgeInsets.all(10),
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            shape: BoxShape.circle,
+                            boxShadow: [
+                              BoxShadow(
+                                color: Colors.black.withOpacity(0.06),
+                                blurRadius: 8,
+                              ),
+                            ],
+                          ),
+                          child: const Icon(Icons.shopping_bag_outlined, color: Colors.black),
                         ),
-                        child: const Icon(Icons.shopping_bag_outlined, color: Colors.black),
                       ),
                     ],
                   ),
                 ),
 
-                // Search Bar
+                // Search Bar (Live Active)
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
                   child: Row(
@@ -198,30 +243,62 @@ class _CatalogScreenState extends State<CatalogScreen> {
                             color: Colors.white,
                             borderRadius: BorderRadius.circular(24),
                           ),
-                          child: const Row(
+                          child: Row(
                             children: [
-                              Icon(Icons.search, color: Colors.grey, size: 20),
-                              SizedBox(width: 8),
-                              Text('Search B2B, JK, TNPL...', style: TextStyle(color: Colors.grey)),
+                              const Icon(Icons.search, color: Colors.grey, size: 20),
+                              const SizedBox(width: 8),
+                              Expanded(
+                                child: TextField(
+                                  controller: searchController,
+                                  onChanged: (val) {
+                                    setState(() {
+                                      searchQuery = val;
+                                    });
+                                  },
+                                  decoration: const InputDecoration(
+                                    hintText: 'Search B2B, JK, TNPL...',
+                                    hintStyle: TextStyle(color: Colors.grey),
+                                    border: InputBorder.none,
+                                    isDense: true,
+                                  ),
+                                ),
+                              ),
+                              if (searchQuery.isNotEmpty)
+                                GestureDetector(
+                                  onTap: () {
+                                    setState(() {
+                                      searchController.clear();
+                                      searchQuery = '';
+                                    });
+                                  },
+                                  child: const Icon(Icons.close, color: Colors.grey, size: 18),
+                                ),
                             ],
                           ),
                         ),
                       ),
                       const SizedBox(width: 10),
-                      Container(
-                        height: 48,
-                        width: 48,
-                        decoration: BoxDecoration(
-                          color: Colors.white,
-                          borderRadius: BorderRadius.circular(16),
+                      GestureDetector(
+                        onTap: () {
+                          setState(() {
+                            selectedCategoryIndex = (selectedCategoryIndex + 1) % categories.length;
+                          });
+                        },
+                        child: Container(
+                          height: 48,
+                          width: 48,
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            borderRadius: BorderRadius.circular(16),
+                          ),
+                          child: const Icon(Icons.tune, color: Colors.black),
                         ),
-                        child: const Icon(Icons.tune, color: Colors.black),
                       ),
                     ],
                   ),
                 ),
 
-                // Categories
+                // Category Pills (Working Filter)
                 Container(
                   height: 40,
                   margin: const EdgeInsets.symmetric(vertical: 12),
@@ -232,7 +309,11 @@ class _CatalogScreenState extends State<CatalogScreen> {
                     itemBuilder: (context, index) {
                       final isSelected = selectedCategoryIndex == index;
                       return GestureDetector(
-                        onTap: () => setState(() => selectedCategoryIndex = index),
+                        onTap: () {
+                          setState(() {
+                            selectedCategoryIndex = index;
+                          });
+                        },
                         child: Container(
                           margin: const EdgeInsets.only(right: 10),
                           padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
@@ -256,126 +337,176 @@ class _CatalogScreenState extends State<CatalogScreen> {
                   ),
                 ),
 
-                // Product Grid
+                // Product Grid / Empty State
                 Expanded(
-                  child: GridView.builder(
-                    padding: const EdgeInsets.fromLTRB(20, 4, 20, 100),
-                    itemCount: items.length,
-                    gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                      crossAxisCount: 2,
-                      crossAxisSpacing: 14,
-                      mainAxisSpacing: 14,
-                      childAspectRatio: 0.65,
-                    ),
-                    itemBuilder: (context, index) {
-                      final item = items[index];
-                      return Container(
-                        padding: const EdgeInsets.all(12),
-                        decoration: BoxDecoration(
-                          color: const Color(0xFFEFF1F4),
-                          borderRadius: BorderRadius.circular(24),
-                        ),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                Container(
-                                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                                  decoration: BoxDecoration(
-                                    color: Colors.white,
-                                    borderRadius: BorderRadius.circular(12),
-                                  ),
-                                  child: Text(
-                                    item['badge'],
-                                    style: const TextStyle(
-                                      fontSize: 10,
-                                      fontWeight: FontWeight.bold,
-                                      color: Color(0xFF1E3A2B),
-                                    ),
-                                  ),
-                                ),
-                                const Icon(Icons.favorite_border, size: 20, color: Colors.grey),
-                              ],
-                            ),
-                            Expanded(
-                              child: Center(
-                                child: ClipRRect(
-                                  borderRadius: BorderRadius.circular(12),
-                                  child: Image.network(
-                                    item['image'],
-                                    fit: BoxFit.contain,
-                                    errorBuilder: (_, __, ___) => const Icon(
-                                      Icons.description,
-                                      size: 50,
-                                      color: Colors.grey,
-                                    ),
-                                  ),
-                                ),
+                  child: displayItems.isEmpty
+                      ? Center(
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Icon(
+                                currentNavIndex == 1 ? Icons.favorite_border : Icons.search_off,
+                                size: 60,
+                                color: Colors.grey,
                               ),
-                            ),
-                            const SizedBox(height: 6),
-                            Text(
-                              item['title'],
-                              maxLines: 2,
-                              overflow: TextOverflow.ellipsis,
-                              style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600),
-                            ),
-                            const SizedBox(height: 2),
-                            Row(
-                              crossAxisAlignment: CrossAxisAlignment.baseline,
-                              textBaseline: TextBaseline.alphabetic,
-                              children: [
-                                Text(
-                                  item['price'],
-                                  style: const TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
-                                ),
-                                const SizedBox(width: 4),
-                                Text(
-                                  item['unit'],
-                                  style: const TextStyle(fontSize: 10, color: Colors.grey),
-                                ),
-                              ],
-                            ),
-                            const SizedBox(height: 8),
-                            SizedBox(
-                              width: double.infinity,
-                              height: 34,
-                              child: ElevatedButton(
-                                style: ElevatedButton.styleFrom(
-                                  backgroundColor: const Color(0xFF141414),
-                                  shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(12),
-                                  ),
-                                  padding: EdgeInsets.zero,
-                                ),
-                                onPressed: () {
-                                  _showWhatsAppChoice(item['title'], item['price'], item['unit']);
-                                },
-                                child: const Row(
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  children: [
-                                    Icon(Icons.chat, size: 14, color: Colors.white),
-                                    SizedBox(width: 6),
-                                    Text(
-                                      'Order Now',
-                                      style: TextStyle(fontSize: 12, color: Colors.white),
-                                    ),
-                                  ],
-                                ),
+                              const SizedBox(height: 12),
+                              Text(
+                                currentNavIndex == 1
+                                    ? "No favorite products added yet!"
+                                    : "No products match your search",
+                                style: const TextStyle(color: Colors.grey, fontSize: 15),
                               ),
-                            ),
-                          ],
+                            ],
+                          ),
+                        )
+                      : GridView.builder(
+                          padding: const EdgeInsets.fromLTRB(20, 4, 20, 100),
+                          itemCount: displayItems.length,
+                          gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                            crossAxisCount: 2,
+                            crossAxisSpacing: 14,
+                            mainAxisSpacing: 14,
+                            childAspectRatio: 0.65,
+                          ),
+                          itemBuilder: (context, index) {
+                            final item = displayItems[index];
+                            final isFav = favoriteItems.contains(item['id']);
+
+                            return Container(
+                              padding: const EdgeInsets.all(12),
+                              decoration: BoxDecoration(
+                                color: const Color(0xFFEFF1F4),
+                                borderRadius: BorderRadius.circular(24),
+                              ),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Row(
+                                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                    children: [
+                                      Container(
+                                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                                        decoration: BoxDecoration(
+                                          color: Colors.white,
+                                          borderRadius: BorderRadius.circular(12),
+                                        ),
+                                        child: Text(
+                                          item['badge'],
+                                          style: const TextStyle(
+                                            fontSize: 10,
+                                            fontWeight: FontWeight.bold,
+                                            color: Color(0xFF1E3A2B),
+                                          ),
+                                        ),
+                                      ),
+                                      GestureDetector(
+                                        onTap: () {
+                                          setState(() {
+                                            if (isFav) {
+                                              favoriteItems.remove(item['id']);
+                                            } else {
+                                              favoriteItems.add(item['id']);
+                                            }
+                                          });
+                                          ScaffoldMessenger.of(context).showSnackBar(
+                                            SnackBar(
+                                              content: Text(isFav
+                                                  ? "Removed from favorites"
+                                                  : "Added to favorites"),
+                                              duration: const Duration(seconds: 1),
+                                            ),
+                                          );
+                                        },
+                                        child: Icon(
+                                          isFav ? Icons.favorite : Icons.favorite_border,
+                                          size: 22,
+                                          color: isFav ? Colors.red : Colors.grey,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                  Expanded(
+                                    child: Center(
+                                      child: ClipRRect(
+                                        borderRadius: BorderRadius.circular(12),
+                                        child: Image.network(
+                                          item['image'],
+                                          fit: BoxFit.contain,
+                                          loadingBuilder: (context, child, progress) {
+                                            if (progress == null) return child;
+                                            return const Center(
+                                                child: CircularProgressIndicator(strokeWidth: 2));
+                                          },
+                                          errorBuilder: (_, __, ___) => const Icon(
+                                            Icons.description,
+                                            size: 50,
+                                            color: Colors.grey,
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                  const SizedBox(height: 6),
+                                  Text(
+                                    item['title'],
+                                    maxLines: 2,
+                                    overflow: TextOverflow.ellipsis,
+                                    style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600),
+                                  ),
+                                  const SizedBox(height: 2),
+                                  Row(
+                                    crossAxisAlignment: CrossAxisAlignment.baseline,
+                                    textBaseline: TextBaseline.alphabetic,
+                                    children: [
+                                      Text(
+                                        item['price'],
+                                        style: const TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
+                                      ),
+                                      const SizedBox(width: 4),
+                                      Text(
+                                        item['unit'],
+                                        style: const TextStyle(fontSize: 10, color: Colors.grey),
+                                      ),
+                                    ],
+                                  ),
+                                  const SizedBox(height: 8),
+                                  SizedBox(
+                                    width: double.infinity,
+                                    height: 34,
+                                    child: ElevatedButton(
+                                      style: ElevatedButton.styleFrom(
+                                        backgroundColor: const Color(0xFF141414),
+                                        shape: RoundedRectangleBorder(
+                                          borderRadius: BorderRadius.circular(12),
+                                        ),
+                                        padding: EdgeInsets.zero,
+                                      ),
+                                      onPressed: () {
+                                        _showWhatsAppChoice(item['title'], item['price'], item['unit']);
+                                      },
+                                      child: const Row(
+                                        mainAxisAlignment: MainAxisAlignment.center,
+                                        children: [
+                                          Icon(Icons.chat, size: 14, color: Colors.white),
+                                          SizedBox(width: 6),
+                                          Text(
+                                            'Order Now',
+                                            style: TextStyle(fontSize: 12, color: Colors.white),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            );
+                          },
                         ),
-                      );
-                    },
-                  ),
                 ),
               ],
             ),
 
-            // Bottom Navigation Bar
+            // Bottom Navigation Bar (All Tabs Working)
             Positioned(
               bottom: 24,
               left: 30,
@@ -394,13 +525,49 @@ class _CatalogScreenState extends State<CatalogScreen> {
                     ),
                   ],
                 ),
-                child: const Row(
+                child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceAround,
                   children: [
-                    Icon(Icons.home_filled, color: Colors.white),
-                    Icon(Icons.favorite, color: Colors.white54),
-                    Icon(Icons.receipt_long, color: Colors.white54),
-                    Icon(Icons.person_outline, color: Colors.white54),
+                    IconButton(
+                      icon: Icon(Icons.home_filled,
+                          color: currentNavIndex == 0 ? Colors.white : Colors.white54),
+                      onPressed: () {
+                        setState(() {
+                          currentNavIndex = 0;
+                        });
+                      },
+                    ),
+                    IconButton(
+                      icon: Icon(Icons.favorite,
+                          color: currentNavIndex == 1 ? Colors.redAccent : Colors.white54),
+                      onPressed: () {
+                        setState(() {
+                          currentNavIndex = 1;
+                        });
+                      },
+                    ),
+                    IconButton(
+                      icon: Icon(Icons.receipt_long,
+                          color: currentNavIndex == 2 ? Colors.white : Colors.white54),
+                      onPressed: () {
+                        setState(() {
+                          currentNavIndex = 2;
+                        });
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(
+                            content: Text("Orders are tracked via WhatsApp chat history."),
+                            duration: Duration(seconds: 2),
+                          ),
+                        );
+                      },
+                    ),
+                    IconButton(
+                      icon: Icon(Icons.support_agent,
+                          color: currentNavIndex == 3 ? Colors.white : Colors.white54),
+                      onPressed: () {
+                        _showWhatsAppChoice("Customer Support Query", "-", "Help");
+                      },
+                    ),
                   ],
                 ),
               ),
