@@ -46,7 +46,7 @@ class _CatalogScreenState extends State<CatalogScreen> {
   final String partner2Name = 'Chaitanya Kadam';
   final String partner2Number = '919209097597';
 
-  // Tuljabhavani Devi Image URL
+  // Tuljabhavani Devi Image Direct CDN URL
   final String tuljabhavaniImageUrl =
       'https://upload.wikimedia.org/wikipedia/commons/thumb/c/cf/Tulja_Bhavani_Devi.jpg/500px-Tulja_Bhavani_Devi.jpg';
 
@@ -162,7 +162,8 @@ class _CatalogScreenState extends State<CatalogScreen> {
                 shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
                 onTap: () {
                   Navigator.pop(context);
-                  final msg = "Hello Paper Hub,\nI want to place an order for:\n\n*Product:* $title\n*Price:* $price ($unit)";
+                  final msg =
+                      "Hello Paper Hub,\nI want to place an order for:\n\n*Product:* $title\n*Price:* $price ($unit)";
                   _openWhatsAppRaw(whatsappNumber1, msg);
                 },
               ),
@@ -178,7 +179,8 @@ class _CatalogScreenState extends State<CatalogScreen> {
                 shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
                 onTap: () {
                   Navigator.pop(context);
-                  final msg = "Hello Paper Hub,\nI want to place an order for:\n\n*Product:* $title\n*Price:* $price ($unit)";
+                  final msg =
+                      "Hello Paper Hub,\nI want to place an order for:\n\n*Product:* $title\n*Price:* $price ($unit)";
                   _openWhatsAppRaw(whatsappNumber2, msg);
                 },
               ),
@@ -192,6 +194,11 @@ class _CatalogScreenState extends State<CatalogScreen> {
 
   // Shree Tuljabhavani Computers Enquiry Popup
   void _showTuljabhavaniChoice() {
+    const customEnquiryMsg = "नमस्कार,\n\n"
+        "‘श्री तुळजाभवानी कॉम्प्युटर्स’ येथे उपलब्ध असलेल्या ऑनलाईन, प्रिंटिंग, झेरॉक्स तसेच इतर संगणक-संबंधित सेवांबाबत आवश्यक माहिती प्राप्त करून घ्यावयाची आहे.\n\n"
+        "त्याअनुषंगाने, उपलब्ध सेवांचा तपशील, लागू असलेले सेवा शुल्क, कार्यपद्धती तसेच आवश्यक असलेली इतर माहिती उपलब्ध करून द्यावी, ही विनंती.\n\n"
+        "धन्यवाद.";
+
     showModalBottomSheet(
       context: context,
       shape: const RoundedRectangleBorder(
@@ -206,10 +213,23 @@ class _CatalogScreenState extends State<CatalogScreen> {
             children: [
               Row(
                 children: [
-                  CircleAvatar(
-                    radius: 22,
-                    backgroundColor: Colors.amber,
-                    backgroundImage: NetworkImage(tuljabhavaniImageUrl),
+                  Container(
+                    width: 46,
+                    height: 46,
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      border: Border.all(color: Colors.amber, width: 2),
+                    ),
+                    child: ClipOval(
+                      child: Image.network(
+                        tuljabhavaniImageUrl,
+                        fit: BoxFit.cover,
+                        errorBuilder: (context, error, stackTrace) => const CircleAvatar(
+                          backgroundColor: Colors.amber,
+                          child: Icon(Icons.brightness_7, color: Colors.white, size: 24),
+                        ),
+                      ),
+                    ),
                   ),
                   const SizedBox(width: 12),
                   const Expanded(
@@ -241,8 +261,7 @@ class _CatalogScreenState extends State<CatalogScreen> {
                 shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
                 onTap: () {
                   Navigator.pop(context);
-                  final msg = "नमस्कार,\nमला 'श्री तुळजाभवानी कॉम्प्युटर्स' च्या ऑनलाईन / प्रिंटिंग सेवेबद्दल माहिती हवी आहे.";
-                  _openWhatsAppRaw(partner1Number, msg);
+                  _openWhatsAppRaw(partner1Number, customEnquiryMsg);
                 },
               ),
               const SizedBox(height: 12),
@@ -257,8 +276,7 @@ class _CatalogScreenState extends State<CatalogScreen> {
                 shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
                 onTap: () {
                   Navigator.pop(context);
-                  final msg = "नमस्कार,\nमला 'श्री तुळजाभवानी कॉम्प्युटर्स' च्या ऑनलाईन / प्रिंटिंग सेवेबद्दल माहिती हवी आहे.";
-                  _openWhatsAppRaw(partner2Number, msg);
+                  _openWhatsAppRaw(partner2Number, customEnquiryMsg);
                 },
               ),
               const SizedBox(height: 10),
@@ -360,12 +378,12 @@ class _CatalogScreenState extends State<CatalogScreen> {
 
                 // Promotion Banner with Tuljabhavani Devi Photo
                 Padding(
-                  padding: const EdgeInsets.fromLTRB(20, 10, 20, 4),
+                  padding: const EdgeInsets.fromLTRB(20, 10, 20, 8),
                   child: Container(
-                    padding: const EdgeInsets.all(12),
+                    padding: const EdgeInsets.all(14),
                     decoration: BoxDecoration(
                       gradient: const LinearGradient(
-                        colors: [Color(0xFF800020), Color(0xFF1A102F)], // Elegant rich maroon-gold theme
+                        colors: [Color(0xFF800020), Color(0xFF1A102F)],
                         begin: Alignment.topLeft,
                         end: Alignment.bottomRight,
                       ),
@@ -384,20 +402,39 @@ class _CatalogScreenState extends State<CatalogScreen> {
                         Row(
                           crossAxisAlignment: CrossAxisAlignment.center,
                           children: [
-                            // Devi Photo with golden circular border
                             Container(
+                              width: 52,
+                              height: 52,
                               padding: const EdgeInsets.all(2),
                               decoration: BoxDecoration(
                                 shape: BoxShape.circle,
                                 border: Border.all(color: Colors.amber, width: 2),
                               ),
-                              child: CircleAvatar(
-                                radius: 24,
-                                backgroundColor: Colors.white12,
-                                backgroundImage: NetworkImage(tuljabhavaniImageUrl),
+                              child: ClipOval(
+                                child: Image.network(
+                                  tuljabhavaniImageUrl,
+                                  fit: BoxFit.cover,
+                                  loadingBuilder: (context, child, loadingProgress) {
+                                    if (loadingProgress == null) return child;
+                                    return const Center(
+                                      child: SizedBox(
+                                        width: 20,
+                                        height: 20,
+                                        child: CircularProgressIndicator(
+                                          strokeWidth: 2,
+                                          color: Colors.amber,
+                                        ),
+                                      ),
+                                    );
+                                  },
+                                  errorBuilder: (context, error, stackTrace) => const CircleAvatar(
+                                    backgroundColor: Colors.amber,
+                                    child: Icon(Icons.brightness_7, color: Colors.white, size: 26),
+                                  ),
+                                ),
                               ),
                             ),
-                            const SizedBox(width: 10),
+                            const SizedBox(width: 12),
                             Expanded(
                               child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -442,23 +479,27 @@ class _CatalogScreenState extends State<CatalogScreen> {
                             ),
                           ],
                         ),
-                        const SizedBox(height: 6),
+                        const SizedBox(height: 8),
                         const Text(
                           'सर्व प्रकारच्या ऑनलाईन सेवा, गॅझेट आणि सरकारी फॉर्म्सची कामे खात्रीशीर केली जातात.',
-                          style: TextStyle(color: Colors.white60, fontSize: 10, height: 1.2),
+                          style: TextStyle(color: Colors.white70, fontSize: 10, height: 1.2),
                         ),
-                        const SizedBox(height: 8),
+                        const SizedBox(height: 10),
                         Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
                             const Text(
                               'Rohit Devkule • Chaitanya Kadam',
-                              style: TextStyle(color: Colors.white70, fontSize: 10, fontWeight: FontWeight.w500),
+                              style: TextStyle(
+                                color: Colors.white70,
+                                fontSize: 10,
+                                fontWeight: FontWeight.w500,
+                              ),
                             ),
                             InkWell(
                               onTap: _showTuljabhavaniChoice,
                               child: Container(
-                                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 5),
+                                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                                 decoration: BoxDecoration(
                                   color: const Color(0xFF25D366),
                                   borderRadius: BorderRadius.circular(14),
@@ -470,7 +511,11 @@ class _CatalogScreenState extends State<CatalogScreen> {
                                     SizedBox(width: 5),
                                     Text(
                                       'WhatsApp Contact',
-                                      style: TextStyle(color: Colors.white, fontSize: 10, fontWeight: FontWeight.bold),
+                                      style: TextStyle(
+                                        color: Colors.white,
+                                        fontSize: 10,
+                                        fontWeight: FontWeight.bold,
+                                      ),
                                     ),
                                   ],
                                 ),
@@ -483,186 +528,174 @@ class _CatalogScreenState extends State<CatalogScreen> {
                   ),
                 ),
 
-                // Category Tabs
-                Container(
+                // Category Chips
+                SizedBox(
                   height: 38,
-                  margin: const EdgeInsets.symmetric(vertical: 8),
                   child: ListView.builder(
                     scrollDirection: Axis.horizontal,
                     padding: const EdgeInsets.symmetric(horizontal: 20),
                     itemCount: categories.length,
                     itemBuilder: (context, index) {
                       final isSelected = selectedCategoryIndex == index;
-                      return GestureDetector(
-                        onTap: () => setState(() => selectedCategoryIndex = index),
-                        child: Container(
-                          margin: const EdgeInsets.only(right: 10),
-                          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                          decoration: BoxDecoration(
-                            color: isSelected ? const Color(0xFF1E3A2B) : Colors.white,
-                            borderRadius: BorderRadius.circular(20),
-                          ),
-                          child: Center(
-                            child: Text(
-                              categories[index],
-                              style: TextStyle(
-                                color: isSelected ? Colors.white : Colors.black87,
-                                fontWeight: FontWeight.w600,
-                                fontSize: 12,
-                              ),
+                      return Padding(
+                        padding: const EdgeInsets.only(right: 8),
+                        child: ChoiceChip(
+                          label: Text(
+                            categories[index],
+                            style: TextStyle(
+                              color: isSelected ? Colors.white : Colors.black87,
+                              fontSize: 12,
+                              fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
                             ),
                           ),
+                          selected: isSelected,
+                          selectedColor: const Color(0xFF800020),
+                          backgroundColor: Colors.white,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(18),
+                            side: BorderSide(
+                              color: isSelected ? Colors.transparent : Colors.grey.shade300,
+                            ),
+                          ),
+                          onSelected: (selected) {
+                            setState(() {
+                              selectedCategoryIndex = index;
+                            });
+                          },
                         ),
                       );
                     },
                   ),
                 ),
 
-                // Products Grid
+                // Product Grid View
                 Expanded(
                   child: displayItems.isEmpty
-                      ? Center(
-                          child: Column(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              Icon(
-                                currentNavIndex == 1 ? Icons.favorite_border : Icons.search_off,
-                                size: 50,
-                                color: Colors.grey,
-                              ),
-                              const SizedBox(height: 10),
-                              Text(
-                                currentNavIndex == 1
-                                    ? "No favorite products added yet!"
-                                    : "No products match your search",
-                                style: const TextStyle(color: Colors.grey, fontSize: 14),
-                              ),
-                            ],
-                          ),
-                        )
+                      ? const Center(child: Text('No products found.'))
                       : GridView.builder(
-                          padding: const EdgeInsets.fromLTRB(20, 2, 20, 90),
-                          itemCount: displayItems.length,
+                          padding: const EdgeInsets.fromLTRB(20, 12, 20, 80),
                           gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
                             crossAxisCount: 2,
-                            crossAxisSpacing: 12,
-                            mainAxisSpacing: 12,
-                            childAspectRatio: 0.65,
+                            childAspectRatio: 0.72,
+                            crossAxisSpacing: 14,
+                            mainAxisSpacing: 14,
                           ),
+                          itemCount: displayItems.length,
                           itemBuilder: (context, index) {
                             final item = displayItems[index];
                             final isFav = favoriteItems.contains(item['id']);
 
                             return Container(
-                              padding: const EdgeInsets.all(10),
                               decoration: BoxDecoration(
-                                color: const Color(0xFFEFF1F4),
-                                borderRadius: BorderRadius.circular(20),
+                                color: Colors.white,
+                                borderRadius: BorderRadius.circular(16),
+                                boxShadow: [
+                                  BoxShadow(
+                                    color: Colors.black.withOpacity(0.04),
+                                    blurRadius: 6,
+                                    offset: const Offset(0, 2),
+                                  ),
+                                ],
                               ),
                               child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
-                                  Row(
-                                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                    children: [
-                                      Container(
-                                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                                        decoration: BoxDecoration(
-                                          color: Colors.white,
-                                          borderRadius: BorderRadius.circular(10),
-                                        ),
-                                        child: Text(
-                                          item['badge'],
-                                          style: const TextStyle(
-                                            fontSize: 9,
-                                            fontWeight: FontWeight.bold,
-                                            color: Color(0xFF1E3A2B),
-                                          ),
-                                        ),
-                                      ),
-                                      GestureDetector(
-                                        onTap: () {
-                                          setState(() {
-                                            if (isFav) {
-                                              favoriteItems.remove(item['id']);
-                                            } else {
-                                              favoriteItems.add(item['id']);
-                                            }
-                                          });
-                                        },
-                                        child: Icon(
-                                          isFav ? Icons.favorite : Icons.favorite_border,
-                                          size: 20,
-                                          color: isFav ? Colors.red : Colors.grey,
-                                        ),
-                                      ),
-                                    ],
-                                  ),
                                   Expanded(
-                                    child: Center(
-                                      child: ClipRRect(
-                                        borderRadius: BorderRadius.circular(10),
-                                        child: Image.network(
-                                          item['image'],
-                                          fit: BoxFit.contain,
-                                          errorBuilder: (_, __, ___) => const Icon(
-                                            Icons.description,
-                                            size: 45,
-                                            color: Colors.grey,
+                                    child: Stack(
+                                      children: [
+                                        ClipRRect(
+                                          borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
+                                          child: Container(
+                                            color: const Color(0xFFF0F2F5),
+                                            width: double.infinity,
+                                            child: Image.network(
+                                              item['image'],
+                                              fit: BoxFit.cover,
+                                              errorBuilder: (_, __, ___) => const Center(
+                                                child: Icon(Icons.picture_as_pdf, color: Colors.grey, size: 36),
+                                              ),
+                                            ),
                                           ),
                                         ),
-                                      ),
+                                        Positioned(
+                                          top: 8,
+                                          right: 8,
+                                          child: GestureDetector(
+                                            onTap: () {
+                                              setState(() {
+                                                if (isFav) {
+                                                  favoriteItems.remove(item['id']);
+                                                } else {
+                                                  favoriteItems.add(item['id']);
+                                                }
+                                              });
+                                            },
+                                            child: CircleAvatar(
+                                              radius: 14,
+                                              backgroundColor: Colors.white.withOpacity(0.9),
+                                              child: Icon(
+                                                isFav ? Icons.favorite : Icons.favorite_border,
+                                                size: 16,
+                                                color: isFav ? Colors.red : Colors.grey,
+                                              ),
+                                            ),
+                                          ),
+                                        ),
+                                      ],
                                     ),
                                   ),
-                                  const SizedBox(height: 4),
-                                  Text(
-                                    item['title'],
-                                    maxLines: 2,
-                                    overflow: TextOverflow.ellipsis,
-                                    style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w600),
-                                  ),
-                                  const SizedBox(height: 2),
-                                  Row(
-                                    crossAxisAlignment: CrossAxisAlignment.baseline,
-                                    textBaseline: TextBaseline.alphabetic,
-                                    children: [
-                                      Text(
-                                        item['price'],
-                                        style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
-                                      ),
-                                      const SizedBox(width: 4),
-                                      Text(
-                                        item['unit'],
-                                        style: const TextStyle(fontSize: 10, color: Colors.grey),
-                                      ),
-                                    ],
-                                  ),
-                                  const SizedBox(height: 6),
-                                  SizedBox(
-                                    width: double.infinity,
-                                    height: 32,
-                                    child: ElevatedButton(
-                                      style: ElevatedButton.styleFrom(
-                                        backgroundColor: const Color(0xFF141414),
-                                        shape: RoundedRectangleBorder(
-                                          borderRadius: BorderRadius.circular(10),
+                                  Padding(
+                                    padding: const EdgeInsets.all(10),
+                                    child: Column(
+                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      children: [
+                                        Text(
+                                          item['title'],
+                                          maxLines: 1,
+                                          overflow: TextOverflow.ellipsis,
+                                          style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13),
                                         ),
-                                        padding: EdgeInsets.zero,
-                                      ),
-                                      onPressed: () {
-                                        _showWhatsAppChoice(item['title'], item['price'], item['unit']);
-                                      },
-                                      child: const Row(
-                                        mainAxisAlignment: MainAxisAlignment.center,
-                                        children: [
-                                          Icon(Icons.chat, size: 13, color: Colors.white),
-                                          SizedBox(width: 5),
-                                          Text(
-                                            'Order Now',
-                                            style: TextStyle(fontSize: 11, color: Colors.white),
+                                        const SizedBox(height: 4),
+                                        Row(
+                                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                          children: [
+                                            Text(
+                                              item['price'],
+                                              style: const TextStyle(
+                                                fontSize: 14,
+                                                fontWeight: FontWeight.bold,
+                                                color: Color(0xFF800020),
+                                              ),
+                                            ),
+                                            Text(
+                                              item['unit'],
+                                              style: const TextStyle(fontSize: 10, color: Colors.grey),
+                                            ),
+                                          ],
+                                        ),
+                                        const SizedBox(height: 8),
+                                        SizedBox(
+                                          width: double.infinity,
+                                          height: 32,
+                                          child: ElevatedButton(
+                                            onPressed: () {
+                                              _showWhatsAppChoice(item['title'], item['price'], item['unit']);
+                                            },
+                                            style: ElevatedButton.styleFrom(
+                                              backgroundColor: const Color(0xFF800020),
+                                              elevation: 0,
+                                              shape: RoundedRectangleBorder(
+                                                borderRadius: BorderRadius.circular(8),
+                                              ),
+                                              padding: EdgeInsets.zero,
+                                            ),
+                                            child: const Text(
+                                              'Order Now',
+                                              style: TextStyle(fontSize: 11, color: Colors.white),
+                                            ),
                                           ),
-                                        ],
-                                      ),
+                                        ),
+                                      ],
                                     ),
                                   ),
                                 ],
@@ -673,62 +706,19 @@ class _CatalogScreenState extends State<CatalogScreen> {
                 ),
               ],
             ),
-
-            // Bottom Navigation
-            Positioned(
-              bottom: 20,
-              left: 30,
-              right: 30,
-              child: Container(
-                height: 52,
-                padding: const EdgeInsets.symmetric(horizontal: 20),
-                decoration: BoxDecoration(
-                  color: const Color(0xFF141414),
-                  borderRadius: BorderRadius.circular(26),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black.withOpacity(0.25),
-                      blurRadius: 15,
-                      offset: const Offset(0, 6),
-                    ),
-                  ],
-                ),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceAround,
-                  children: [
-                    IconButton(
-                      icon: Icon(Icons.home_filled,
-                          color: currentNavIndex == 0 ? Colors.white : Colors.white54, size: 22),
-                      onPressed: () => setState(() => currentNavIndex = 0),
-                    ),
-                    IconButton(
-                      icon: Icon(Icons.favorite,
-                          color: currentNavIndex == 1 ? Colors.redAccent : Colors.white54, size: 22),
-                      onPressed: () => setState(() => currentNavIndex = 1),
-                    ),
-                    IconButton(
-                      icon: Icon(Icons.receipt_long,
-                          color: currentNavIndex == 2 ? Colors.white : Colors.white54, size: 22),
-                      onPressed: () {
-                        setState(() => currentNavIndex = 2);
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(content: Text("Orders are tracked via WhatsApp chat history.")),
-                        );
-                      },
-                    ),
-                    IconButton(
-                      icon: Icon(Icons.support_agent,
-                          color: currentNavIndex == 3 ? Colors.white : Colors.white54, size: 22),
-                      onPressed: () {
-                        _showWhatsAppChoice("Customer Support Query", "-", "Help");
-                      },
-                    ),
-                  ],
-                ),
-              ),
-            ),
           ],
         ),
+      ),
+      bottomNavigationBar: BottomNavigationBar(
+        currentIndex: currentNavIndex,
+        selectedItemColor: const Color(0xFF800020),
+        unselectedItemColor: Colors.grey,
+        onTap: (index) => setState(() => currentNavIndex = index),
+        items: const [
+          BottomNavigationBarItem(icon: Icon(Icons.home_outlined), activeIcon: Icon(Icons.home), label: 'Home'),
+          BottomNavigationBarItem(icon: Icon(Icons.favorite_outline), activeIcon: Icon(Icons.favorite), label: 'Favorites'),
+          BottomNavigationBarItem(icon: Icon(Icons.receipt_long_outlined), activeIcon: Icon(Icons.receipt_long), label: 'Orders'),
+        ],
       ),
     );
   }
