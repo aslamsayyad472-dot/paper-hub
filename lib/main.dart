@@ -32,41 +32,46 @@ class CatalogScreen extends StatefulWidget {
 class _CatalogScreenState extends State<CatalogScreen> {
   int selectedCategoryIndex = 0;
 
-  // Dono WhatsApp numbers setup
+  // Dono WhatsApp numbers
   final String whatsappNumber1 = '917038343215';
   final String whatsappNumber2 = '919175635317';
 
-  final List<String> categories = ['A4 Sheets', 'Notebooks', 'Bond Paper', 'Craft Paper'];
+  final List<String> categories = ['All Papers', '70 GSM A4', 'Bulk Box Offers'];
 
+  // Aapke exact products aur offers
   final List<Map<String, dynamic>> items = [
     {
-      'title': 'A4 75 GSM Ream',
-      'price': '₹280',
-      'discount': '-10%',
+      'title': 'B2B 70 GSM A4 Ream',
+      'price': '₹220',
+      'unit': 'per ream',
+      'badge': 'Standard',
       'image': 'https://images.unsplash.com/photo-1586075010923-2dd4570fb338?w=300',
     },
     {
-      'title': 'Spiral Notebook',
-      'price': '₹120',
-      'discount': '-15%',
-      'image': 'https://images.unsplash.com/photo-1544816155-12df9643f363?w=300',
+      'title': 'JK 70 GSM A4 Ream',
+      'price': '₹240',
+      'unit': 'per ream',
+      'badge': 'Premium',
+      'image': 'https://images.unsplash.com/photo-1589330694653-dad6bc0140ad?w=300',
     },
     {
-      'title': 'Executive Diary',
-      'price': '₹450',
-      'discount': '-5%',
-      'image': 'https://images.unsplash.com/photo-1512820790803-83ca734da794?w=300',
+      'title': 'TNPL 70 GSM A4 Ream',
+      'price': '₹200',
+      'unit': 'per ream',
+      'badge': 'Best Value',
+      'image': 'https://images.unsplash.com/photo-1586075010923-2dd4570fb338?w=300',
     },
     {
-      'title': 'Origami Color Pack',
-      'price': '₹199',
-      'discount': '-20%',
-      'image': 'https://images.unsplash.com/photo-1607344645866-009c320b5ab8?w=300',
+      'title': 'B2B A4 Box (10 Reams)',
+      'price': '₹2,000',
+      'unit': '₹200 / ream',
+      'badge': 'Bulk Offer',
+      'image': 'https://images.unsplash.com/photo-1530587191325-3db32d826c18?w=300',
     },
   ];
 
-  Future<void> _openWhatsApp(String phone, String title, String price) async {
-    final message = "Hello Paper Hub, I want to order:\nItem: $title\nPrice: $price";
+  Future<void> _openWhatsApp(String phone, String title, String price, String unit) async {
+    final message = "Hello Paper Hub,\nI want to place an order for:\n\n*Product:* $title\n*Price:* $price ($unit)";
     final url = Uri.parse("https://wa.me/$phone?text=${Uri.encodeComponent(message)}");
 
     if (await canLaunchUrl(url)) {
@@ -80,7 +85,7 @@ class _CatalogScreenState extends State<CatalogScreen> {
     }
   }
 
-  void _showWhatsAppChoice(String title, String price) {
+  void _showWhatsAppChoice(String title, String price, String unit) {
     showModalBottomSheet(
       context: context,
       shape: const RoundedRectangleBorder(
@@ -99,7 +104,7 @@ class _CatalogScreenState extends State<CatalogScreen> {
               ),
               const SizedBox(height: 8),
               Text(
-                'Order query for $title ($price)',
+                'Order query for $title - $price ($unit)',
                 style: const TextStyle(fontSize: 14, color: Colors.grey),
               ),
               const SizedBox(height: 20),
@@ -114,7 +119,7 @@ class _CatalogScreenState extends State<CatalogScreen> {
                 shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
                 onTap: () {
                   Navigator.pop(context);
-                  _openWhatsApp(whatsappNumber1, title, price);
+                  _openWhatsApp(whatsappNumber1, title, price, unit);
                 },
               ),
               const SizedBox(height: 12),
@@ -129,7 +134,7 @@ class _CatalogScreenState extends State<CatalogScreen> {
                 shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
                 onTap: () {
                   Navigator.pop(context);
-                  _openWhatsApp(whatsappNumber2, title, price);
+                  _openWhatsApp(whatsappNumber2, title, price, unit);
                 },
               ),
               const SizedBox(height: 10),
@@ -149,6 +154,7 @@ class _CatalogScreenState extends State<CatalogScreen> {
             Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
+                // Header
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
                   child: Row(
@@ -179,6 +185,8 @@ class _CatalogScreenState extends State<CatalogScreen> {
                     ],
                   ),
                 ),
+
+                // Search Bar
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
                   child: Row(
@@ -195,7 +203,7 @@ class _CatalogScreenState extends State<CatalogScreen> {
                             children: [
                               Icon(Icons.search, color: Colors.grey, size: 20),
                               SizedBox(width: 8),
-                              Text('Search paper, books...', style: TextStyle(color: Colors.grey)),
+                              Text('Search 70 GSM, JK, TNPL...', style: TextStyle(color: Colors.grey)),
                             ],
                           ),
                         ),
@@ -213,6 +221,8 @@ class _CatalogScreenState extends State<CatalogScreen> {
                     ],
                   ),
                 ),
+
+                // Categories
                 Container(
                   height: 40,
                   margin: const EdgeInsets.symmetric(vertical: 12),
@@ -246,6 +256,8 @@ class _CatalogScreenState extends State<CatalogScreen> {
                     },
                   ),
                 ),
+
+                // Product Grid
                 Expanded(
                   child: GridView.builder(
                     padding: const EdgeInsets.fromLTRB(20, 4, 20, 100),
@@ -254,7 +266,7 @@ class _CatalogScreenState extends State<CatalogScreen> {
                       crossAxisCount: 2,
                       crossAxisSpacing: 14,
                       mainAxisSpacing: 14,
-                      childAspectRatio: 0.72,
+                      childAspectRatio: 0.68,
                     ),
                     itemBuilder: (context, index) {
                       final item = items[index];
@@ -277,8 +289,12 @@ class _CatalogScreenState extends State<CatalogScreen> {
                                     borderRadius: BorderRadius.circular(12),
                                   ),
                                   child: Text(
-                                    item['discount'],
-                                    style: const TextStyle(fontSize: 10, fontWeight: FontWeight.bold),
+                                    item['badge'],
+                                    style: const TextStyle(
+                                      fontSize: 10,
+                                      fontWeight: FontWeight.bold,
+                                      color: Color(0xFF1E3A2B),
+                                    ),
                                   ),
                                 ),
                                 const Icon(Icons.favorite_border, size: 20, color: Colors.grey),
@@ -291,7 +307,8 @@ class _CatalogScreenState extends State<CatalogScreen> {
                                   child: Image.network(
                                     item['image'],
                                     fit: BoxFit.cover,
-                                    errorBuilder: (_, __, ___) => const Icon(Icons.menu_book, size: 50, color: Colors.grey),
+                                    errorBuilder: (_, __, ___) =>
+                                        const Icon(Icons.description, size: 50, color: Colors.grey),
                                   ),
                                 ),
                               ),
@@ -299,14 +316,25 @@ class _CatalogScreenState extends State<CatalogScreen> {
                             const SizedBox(height: 6),
                             Text(
                               item['title'],
-                              maxLines: 1,
+                              maxLines: 2,
                               overflow: TextOverflow.ellipsis,
                               style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600),
                             ),
                             const SizedBox(height: 2),
-                            Text(
-                              item['price'],
-                              style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
+                            Row(
+                              crossAxisAlignment: CrossAxisAlignment.baseline,
+                              textBaseline: TextBaseline.alphabetic,
+                              children: [
+                                Text(
+                                  item['price'],
+                                  style: const TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
+                                ),
+                                const SizedBox(width: 4),
+                                Text(
+                                  item['unit'],
+                                  style: const TextStyle(fontSize: 10, color: Colors.grey),
+                                ),
+                              ],
                             ),
                             const SizedBox(height: 8),
                             SizedBox(
@@ -321,7 +349,7 @@ class _CatalogScreenState extends State<CatalogScreen> {
                                   padding: EdgeInsets.zero,
                                 ),
                                 onPressed: () {
-                                  _showWhatsAppChoice(item['title'], item['price']);
+                                  _showWhatsAppChoice(item['title'], item['price'], item['unit']);
                                 },
                                 child: const Row(
                                   mainAxisAlignment: MainAxisAlignment.center,
@@ -344,6 +372,8 @@ class _CatalogScreenState extends State<CatalogScreen> {
                 ),
               ],
             ),
+
+            // Bottom Navigation Bar
             Positioned(
               bottom: 24,
               left: 30,
