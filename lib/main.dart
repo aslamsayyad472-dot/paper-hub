@@ -33,44 +33,59 @@ class _PaperHubAppState extends State<PaperHubApp> {
 
   int get total {
     int value = 0;
-    cart.forEach((p, q) {
-      value += p.price * q;
+    cart.forEach((product, quantity) {
+      value += product.price * quantity;
     });
     return value;
   }
 
   int get count {
     int value = 0;
-    cart.forEach((p, q) {
-      value += q;
+    cart.forEach((product, quantity) {
+      value += quantity;
     });
     return value;
   }
 
-  void add(Product p) {
+  void add(Product product) {
     setState(() {
-      cart[p] = (cart[p] ?? 0) + 1;
+      cart[product] = (cart[product] ?? 0) + 1;
     });
   }
 
-  void remove(Product p) {
+  void remove(Product product) {
     setState(() {
-      final q = (cart[p] ?? 0) - 1;
-      if (q <= 0) {
-        cart.remove(p);
+      final quantity = (cart[product] ?? 0) - 1;
+
+      if (quantity <= 0) {
+        cart.remove(product);
       } else {
-        cart[p] = q;
+        cart[product] = quantity;
       }
     });
   }
 
-  void details(Product p) {
+  void details(Product product) {
     Navigator.push(
       context,
       MaterialPageRoute(
         builder: (_) => DetailsPage(
-          product: p,
-          add: () => add(p),
+          product: product,
+          add: () => add(product),
+        ),
+      ),
+    );
+  }
+
+  void checkout() {
+    if (cart.isEmpty) return;
+
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (_) => CheckoutPage(
+          cart: cart,
+          total: total,
         ),
       ),
     );
@@ -92,18 +107,7 @@ class _PaperHubAppState extends State<PaperHubApp> {
         total: total,
         onAdd: add,
         onRemove: remove,
-        onCheckout: () {
-          if (cart.isEmpty) return;
-          Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (_) => CheckoutPage(
-                cart: cart,
-                total: total,
-              ),
-            ),
-          );
-        },
+        onCheckout: checkout,
       ),
       const AccountPage(),
     ];
@@ -122,9 +126,9 @@ class _PaperHubAppState extends State<PaperHubApp> {
         body: pages[tab],
         bottomNavigationBar: NavigationBar(
           selectedIndex: tab,
-          onDestinationSelected: (i) {
+          onDestinationSelected: (index) {
             setState(() {
-              tab = i;
+              tab = index;
             });
           },
           destinations: [
@@ -142,7 +146,16 @@ class _PaperHubAppState extends State<PaperHubApp> {
               icon: Badge(
                 isLabelVisible: count > 0,
                 label: Text('$count'),
-                child: const Icon(Icons.shopping_cart_outlined),
+                child: const Icon(
+                  Icons.shopping_cart_outlined,
+                ),
+              ),
+              selectedIcon: Badge(
+                isLabelVisible: count > 0,
+                label: Text('$count'),
+                child: const Icon(
+                  Icons.shopping_cart,
+                ),
               ),
               label: 'Cart',
             ),
@@ -206,7 +219,9 @@ class HomePage extends StatelessWidget {
                   ),
                   Text(
                     'Quality paper for your business',
-                    style: TextStyle(color: Colors.grey),
+                    style: TextStyle(
+                      color: Colors.grey,
+                    ),
                   ),
                 ],
               ),
@@ -228,7 +243,8 @@ class HomePage extends StatelessWidget {
               children: [
                 Expanded(
                   child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
+                    crossAxisAlignment:
+                        CrossAxisAlignment.start,
                     children: [
                       Text(
                         'Premium Paper\nFor Business',
@@ -328,7 +344,9 @@ class HomePage extends StatelessWidget {
     return Expanded(
       child: Container(
         margin: const EdgeInsets.only(right: 8),
-        padding: const EdgeInsets.symmetric(vertical: 14),
+        padding: const EdgeInsets.symmetric(
+          vertical: 14,
+        ),
         decoration: BoxDecoration(
           color: Colors.white,
           borderRadius: BorderRadius.circular(15),
@@ -372,7 +390,9 @@ class ProductsPage extends StatelessWidget {
           const SizedBox(height: 5),
           const Text(
             'Choose your preferred paper brand.',
-            style: TextStyle(color: Colors.grey),
+            style: TextStyle(
+              color: Colors.grey,
+            ),
           ),
           const SizedBox(height: 20),
           ProductCard(
@@ -443,7 +463,8 @@ class ProductCard extends StatelessWidget {
             const SizedBox(width: 14),
             Expanded(
               child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
+                crossAxisAlignment:
+                    CrossAxisAlignment.start,
                 children: [
                   Text(
                     product.brand,
@@ -546,8 +567,9 @@ class DetailsPage extends StatelessWidget {
           ),
           const SizedBox(height: 22),
           const Text(
-            'Premium quality paper suitable for office printing, '
-            'photocopying and daily business requirements.',
+            'Premium quality paper suitable for office '
+            'printing, photocopying and daily business '
+            'requirements.',
             style: TextStyle(
               color: Colors.grey,
               height: 1.5,
@@ -574,10 +596,14 @@ class DetailsPage extends StatelessWidget {
                 add();
                 Navigator.pop(context);
               },
-              icon: const Icon(Icons.shopping_cart),
+              icon: const Icon(
+                Icons.shopping_cart,
+              ),
               label: const Text(
                 'Add to Cart',
-                style: TextStyle(fontWeight: FontWeight.bold),
+                style: TextStyle(
+                  fontWeight: FontWeight.bold,
+                ),
               ),
             ),
           ),
@@ -661,6 +687,13 @@ class CartPage extends StatelessWidget {
                 fontWeight: FontWeight.bold,
               ),
             ),
+            SizedBox(height: 8),
+            Text(
+              'Add some paper to your cart.',
+              style: TextStyle(
+                color: Colors.grey,
+              ),
+            ),
           ],
         ),
       );
@@ -684,13 +717,17 @@ class CartPage extends StatelessWidget {
           ),
           Expanded(
             child: ListView(
-              padding: const EdgeInsets.symmetric(horizontal: 18),
+              padding: const EdgeInsets.symmetric(
+                horizontal: 18,
+              ),
               children: cart.entries.map((entry) {
-                final p = entry.key;
-                final q = entry.value;
+                final Product product = entry.key;
+                final int quantity = entry.value;
 
                 return Container(
-                  margin: const EdgeInsets.only(bottom: 12),
+                  margin: const EdgeInsets.only(
+                    bottom: 12,
+                  ),
                   padding: const EdgeInsets.all(14),
                   decoration: BoxDecoration(
                     color: Colors.white,
@@ -698,45 +735,20 @@ class CartPage extends StatelessWidget {
                   ),
                   child: Row(
                     children: [
-                      Icon(
-                        p.icon,
-                        size: 38,
-                        color: Colors.blue,
+                      Container(
+                        width: 48,
+                        height: 48,
+                        decoration: BoxDecoration(
+                          color: Colors.blue.shade50,
+                          borderRadius:
+                              BorderRadius.circular(14),
+                        ),
+                        child: Icon(
+                          product.icon,
+                          color: Colors.blue,
+                        ),
                       ),
                       const SizedBox(width: 12),
                       Expanded(
                         child: Column(
-                          crossAxisAlignment:
-                              CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              p.name,
-                              style: const TextStyle(
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                            Text('₹${p.price} / ream'),
-                          ],
-                        ),
-                      ),
-                      IconButton(
-                        onPressed: () => onRemove(p),
-                        icon: const Icon(
-                          Icons.remove_circle_outline,
-                        ),
-                      ),
-                      Text(
-                        '$q',
-                        style: const TextStyle(
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                      IconButton(
-                        onPressed: () => onAdd(p),
-                        icon: const Icon(
-                          Icons.add_circle_outline,
-                        ),
-                      ),
-                    ],
-                  ),
-       
+                          crossAxis
