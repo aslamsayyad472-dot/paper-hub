@@ -38,35 +38,35 @@ class _CatalogScreenState extends State<CatalogScreen> {
 
   final List<String> categories = ['All Papers', '70 GSM A4', 'Bulk Box Offers'];
 
-  // Aapke exact products aur offers
+  // Direct online links (Bina folder banaye kaam karega)
   final List<Map<String, dynamic>> items = [
     {
       'title': 'B2B 70 GSM A4 Ream',
       'price': '₹220',
       'unit': 'per ream',
-      'badge': 'Standard',
-      'image': 'https://images.unsplash.com/photo-1586075010923-2dd4570fb338?w=300',
+      'badge': 'Regular',
+      'image': 'https://5.imimg.com/data5/SELLER/Default/2021/6/TG/ZV/YF/27536968/b2b-copier-paper-500x500.jpg',
     },
     {
-      'title': 'JK 70 GSM A4 Ream',
+      'title': 'JK Easy Copier 70 GSM',
       'price': '₹240',
       'unit': 'per ream',
       'badge': 'Premium',
-      'image': 'https://images.unsplash.com/photo-1589330694653-dad6bc0140ad?w=300',
+      'image': 'https://5.imimg.com/data5/SELLER/Default/2022/9/VK/TN/HQ/47372251/jk-easy-copier-paper-500x500.jpg',
     },
     {
-      'title': 'TNPL 70 GSM A4 Ream',
+      'title': 'TNPL Platinum 70 GSM',
       'price': '₹200',
       'unit': 'per ream',
-      'badge': 'Best Value',
-      'image': 'https://images.unsplash.com/photo-1586075010923-2dd4570fb338?w=300',
+      'badge': 'Best Price',
+      'image': 'https://5.imimg.com/data5/SELLER/Default/2023/1/ZQ/PZ/YJ/101347076/tnpl-platinum-copier-paper-500x500.jpg',
     },
     {
-      'title': 'B2B A4 Box (10 Reams)',
+      'title': 'B2B Box (10 Reams Pack)',
       'price': '₹2,000',
       'unit': '₹200 / ream',
-      'badge': 'Bulk Offer',
-      'image': 'https://images.unsplash.com/photo-1530587191325-3db32d826c18?w=300',
+      'badge': 'Special Offer',
+      'image': 'https://m.media-amazon.com/images/I/41sWq-2H7+L._AC_UF350,350_QL80_.jpg',
     },
   ];
 
@@ -154,7 +154,7 @@ class _CatalogScreenState extends State<CatalogScreen> {
             Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // Header
+                // Top App Bar
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
                   child: Row(
@@ -203,7 +203,7 @@ class _CatalogScreenState extends State<CatalogScreen> {
                             children: [
                               Icon(Icons.search, color: Colors.grey, size: 20),
                               SizedBox(width: 8),
-                              Text('Search 70 GSM, JK, TNPL...', style: TextStyle(color: Colors.grey)),
+                              Text('Search B2B, JK, TNPL...', style: TextStyle(color: Colors.grey)),
                             ],
                           ),
                         ),
@@ -266,7 +266,7 @@ class _CatalogScreenState extends State<CatalogScreen> {
                       crossAxisCount: 2,
                       crossAxisSpacing: 14,
                       mainAxisSpacing: 14,
-                      childAspectRatio: 0.68,
+                      childAspectRatio: 0.65,
                     ),
                     itemBuilder: (context, index) {
                       final item = items[index];
@@ -306,9 +306,12 @@ class _CatalogScreenState extends State<CatalogScreen> {
                                   borderRadius: BorderRadius.circular(12),
                                   child: Image.network(
                                     item['image'],
-                                    fit: BoxFit.cover,
-                                    errorBuilder: (_, __, ___) =>
-                                        const Icon(Icons.description, size: 50, color: Colors.grey),
+                                    fit: BoxFit.contain,
+                                    errorBuilder: (_, __, ___) => const Icon(
+                                      Icons.description,
+                                      size: 50,
+                                      color: Colors.grey,
+                                    ),
                                   ),
                                 ),
                               ),
