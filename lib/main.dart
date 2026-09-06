@@ -6,7 +6,7 @@ void main() {
 }
 
 // ---------------------------------------------------------------------------
-// Design Palette (E-commerce Style)
+// Design Palette (Amazon / Flipkart E-commerce Style)
 // ---------------------------------------------------------------------------
 class AppColors {
   static const Color header = Color(0xFF131921); // Amazon Dark Slate
@@ -21,7 +21,7 @@ class AppColors {
 }
 
 // ---------------------------------------------------------------------------
-// Product Model with Web Images
+// Product Model with Added Real Image Links
 // ---------------------------------------------------------------------------
 class Product {
   final String id;
@@ -66,7 +66,7 @@ final List<Product> kProducts = [
     gsm: 75,
     rating: 4.8,
     reviewCount: 1420,
-    imageUrl: 'https://images.unsplash.com/photo-1586075010923-2dd4570fb338?w=500&q=80',
+    imageUrl: 'https://m.media-amazon.com/images/I/71vqf0gF8NL.jpg',
     tag: 'Best Seller',
   ),
   const Product(
@@ -78,7 +78,7 @@ final List<Product> kProducts = [
     gsm: 75,
     rating: 4.9,
     reviewCount: 3890,
-    imageUrl: 'https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?w=500&q=80',
+    imageUrl: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRyc87lJFR2zYSx6HkuC8xm2wIHg8FtA0hDF1AExDyZgl4QygVzlJ0FEUJy&s=10',
     tag: 'Assured',
   ),
   const Product(
@@ -90,7 +90,7 @@ final List<Product> kProducts = [
     gsm: 70,
     rating: 4.6,
     reviewCount: 890,
-    imageUrl: 'https://images.unsplash.com/photo-1568667256549-094345857637?w=500&q=80',
+    imageUrl: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQoA1v0tAf9STUr3RmRJqLnUzqvE0MKNMUf5CYeKg95haj_Yp8rmu0h1hFj&s=10',
     tag: 'Value Choice',
   ),
   const Product(
@@ -102,7 +102,7 @@ final List<Product> kProducts = [
     gsm: 80,
     rating: 4.9,
     reviewCount: 650,
-    imageUrl: 'https://images.unsplash.com/photo-1517842645767-c639042777db?w=500&q=80',
+    imageUrl: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRyc87lJFR2zYSx6HkuC8xm2wIHg8FtA0hDF1AExDyZgl4QygVzlJ0FEUJy&s=10',
     tag: 'Premium',
   ),
 ];
@@ -201,7 +201,7 @@ class _MainShellState extends State<MainShell> {
         backgroundColor: Colors.white,
         elevation: 8,
         selectedIndex: _currentIndex,
-        indicatorColor: AppColors.primary.withOpacity(0.12),
+        indicatorColor: AppColors.primary.withValues(alpha: 0.12),
         onDestinationSelected: (i) => setState(() => _currentIndex = i),
         destinations: [
           const NavigationDestination(
@@ -372,7 +372,7 @@ class StoreHomeScreen extends StatelessWidget {
                   ClipRRect(
                     borderRadius: BorderRadius.circular(8),
                     child: Image.network(
-                      'https://images.unsplash.com/photo-1586075010923-2dd4570fb338?w=200&q=80',
+                      'https://m.media-amazon.com/images/I/71vqf0gF8NL.jpg',
                       width: 90,
                       height: 80,
                       fit: BoxFit.cover,
@@ -444,7 +444,7 @@ class ProductCardAmazon extends StatelessWidget {
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Image Box with Badge
+          // Product Image with Label
           Stack(
             children: [
               ClipRRect(
@@ -562,7 +562,7 @@ class ProductCardAmazon extends StatelessWidget {
                 ),
                 const SizedBox(height: 8),
 
-                // Action
+                // Action Button
                 Align(
                   alignment: Alignment.centerRight,
                   child: ElevatedButton(
@@ -636,7 +636,7 @@ class CategoriesScreen extends StatelessWidget {
 }
 
 // ---------------------------------------------------------------------------
-// Screen 3: Cart Screen with Sticky Flipkart Checkout Bar
+// Screen 3: Cart Screen with Sticky Checkout Bar
 // ---------------------------------------------------------------------------
 class CartScreen extends StatelessWidget {
   final List<CartItem> cartItems;
